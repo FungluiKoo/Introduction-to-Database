@@ -1,0 +1,47 @@
+DROP TABLE IF EXISTS movie;
+CREATE TABLE movie(
+    idMovie INT UNSIGNED NOT NULL PRIMARY KEY,
+    title VARCHAR(45) NOT NULL,
+    releaseDate DATE,
+    storyLine TEXT,
+    aspectRatio FLOAT,
+    runtime TIME,
+    rating FLOAT,
+    initialLanguage VARCHAR(15),
+    primaryGenre VARCHAR(15),
+    boxOffice FLOAT
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS people;
+CREATE TABLE people(
+    idPerson INT UNSIGNED NOT NULL PRIMARY KEY,
+    namePerson VARCHAR(45) NOT NULL,
+    DOB DATE,
+    birthPlace VARCHAR(45),
+    describePerson TEXT
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS casts;
+CREATE TABLE casts(
+    idCast INT UNSIGNED NOT NULL PRIMARY KEY,
+    idPerson INT UNSIGNED NOT NULL,
+    idMovie INT UNSIGNED NOT NULL,
+    chrctr VARCHAR(45)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS company;
+CREATE TABLE company(
+    idCompany INT UNSIGNED NOT NULL PRIMARY KEY,
+    nameCompany VARCHAR(45) NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS producion;
+CREATE TABLE production(
+    idProduction INT UNSIGNED NOT NULL PRIMARY KEY,
+    idCompany INT UNSIGNED NOT NULL,
+    idMovie INT UNSIGNED NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;

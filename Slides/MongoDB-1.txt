@@ -1,0 +1,498 @@
+-- CSCI-UA.60-1
+-- MongoDB Class notes 11/19/2019 (Class #1)
+
+-- Recall from discussion that before doing anything ...
+-- we need to start up mongodb! This is required for each session.
+
+[de123@i6 mongodbFiles]$ module load mongodb-3.2.0 
+
+-- Once mongodb is running, you can log into your mongodb database:
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+
+-- which collections are in this database?
+> show collections
+books
+books_csv
+earthquakes
+hotspots
+sd
+subways
+system.indexes
+users
+wifi
+zips
+
+-- Which documents are in the users collection?
+> db.users.find()
+{ "_id" : ObjectId("5dd3ebcec431561fbb41874a"), "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd3ebcec431561fbb41874b"), "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd3ebcec431561fbb41874c"), "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- We decided to delete (DROP) the users collection:
+> db.users.drop()
+true
+
+-- So now, it no longer appears in the list of collections:
+> show collections
+books
+books_csv
+earthquakes
+hotspots
+sd
+subways
+system.indexes
+wifi
+zips
+
+-- In order to re-import the users data from 'users.json', we exited mongodb to work at the command line.
+-- All of the .json files for use in class are posted to the class notes page at
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_mongo_fa19.html
+
+> exit
+bye
+
+-- At the command line, you can run the 'mongoimport' command with the following parameters:
+[de123@i6 mongodbFiles]$ mongoimport --db de123 --collection users --host class-mongodb.cims.nyu.edu --username de123 --password password --type json --file users.json
+2019-11-19T14:23:02.461-0500	connected to: class-mongodb.cims.nyu.edu
+2019-11-19T14:23:02.471-0500	imported 3 documents
+
+-- Now when we return to mongodb, the users collection is available with 3 documents:
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+> db.users.find()
+{ "_id" : ObjectId("5dd44116c431561fbb418760"), "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44116c431561fbb418761"), "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44116c431561fbb418762"), "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- How many documents are in the users collection?
+> db.users.count()
+3
+
+-- How can we see just one document in the collection?
+-- Note this is the same as the following SQL statement:
+    SELECT *
+    FROM users
+    LIMIT 1
+
+> db.users.find().limit(1)
+{ "_id" : ObjectId("5dd44116c431561fbb418760"), "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+
+-- Here we can see one document in a "pretty" format for easier (human) reading:
+> db.users.findOne()
+{
+	"_id" : ObjectId("5dd44116c431561fbb418760"),
+	"FirstName" : "Deena",
+	"LastName" : "Engel",
+	"Email" : "deena@cs.nyu.edu"
+}
+
+-- The "pretty" mode is available for all results:
+> db.users.find().pretty()
+{
+	"_id" : ObjectId("5dd44116c431561fbb418760"),
+	"FirstName" : "Deena",
+	"LastName" : "Engel",
+	"Email" : "deena@cs.nyu.edu"
+}
+{
+	"_id" : ObjectId("5dd44116c431561fbb418761"),
+	"FirstName" : "Romeo",
+	"LastName" : "Kumar",
+	"Email" : "kumar@cs.nyu.edu"
+}
+{
+	"_id" : ObjectId("5dd44116c431561fbb418762"),
+	"FirstName" : "LeeAnn",
+	"LastName" : "Longi",
+	"Email" : "longi@cs.nyu.edu"
+}
+
+-- Note that findOne() yields the same result as using the "pretty" mode with a LIMIT of 1:
+> db.users.find().pretty().limit(1)
+{
+	"_id" : ObjectId("5dd44116c431561fbb418760"),
+	"FirstName" : "Deena",
+	"LastName" : "Engel",
+	"Email" : "deena@cs.nyu.edu"
+}
+
+-- A question came up in class as to whether the order of the clauses in the query
+-- is important.
+
+-- The answer is - usually (but not always) - YES.
+-- Here you can see that mongodb expects the FIND parameters before it can issue
+-- the results in "pretty" mode:
+
+> db.users.pretty().find()
+2019-11-19T14:27:21.500-0500 E QUERY    [thread1] TypeError: db.users.pretty is not a function :
+@(shell):1:1
+
+-- Next we discussed SELECTION (which documents) and 
+-- PROJECTION (which keys) we wish to display.
+
+-- The first set of {braces} in the .find() are for the SELECTION.
+-- The second set of {braces} in the .find() are for the PROJECTION.
+
+-- Here we suppressed the "ugly" ID value.
+-- Note that mongodb uses KEY:VALUE pairs for nearly every task, including
+-- whether or not to project specific keys.
+
+-- mongodb uses 1 for a boolean TRUE and 0 for a boolean FALSE.
+-- You will also see a case in which mongodb uses a -1 (in a reverse or descending sort).
+
+-- Here we project all of the keys except for the _id:
+> db.users.find({},{_id:0})
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- Here we project only the first and last names:
+> db.users.find({},{_id:0,"LastName":1,"FirstName":1})
+{ "FirstName" : "Deena", "LastName" : "Engel" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi" }
+
+-- Here we use SELECTION to display only documents in the collection
+-- with a last name of "Kumar" and we project all of the keys except for the _id:
+> db.users.find({"LastName":"Kumar"},{_id:0})
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+
+-- Next we sorted the results by last name in ASCENDING ORDER; this is analagous to
+    SELECT lastName,firstName,email
+    FROM users
+    ORDER BY lastName;
+
+> db.users.find({},{_id:0}).sort({"LastName":1})
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- We used +1 above for ASCENDING ORDER and we used -1 here for DESCENDING order:
+> db.users.find({},{_id:0}).sort({"LastName":-1})
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+
+-- How many documents are in our collection?
+> db.users.count()
+3
+
+-- We added Prof Bloomberg and we now have 4 documents in our collection:
+> db.users.insert({"LastName":"Bloomberg","FirstName":"Amos","Email":"amos@cs.nyu.edu"})
+WriteResult({ "nInserted" : 1 })
+> db.users.count()
+4
+
+-- We checked to be sure our INSERT query worked:
+> db.users.find({},{_id:0}).sort({"LastName":1,"FirstName":1})
+{ "LastName" : "Bloomberg", "FirstName" : "Amos", "Email" : "amos@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- Next we added Prof. Kapp but we added his first name, last name and office
+-- number without email.
+-- That would not work in SQL but mongodb supports a DYNAMIC SCHEMA:
+> db.users.insert({"LastName":"Kapp","FirstName":"Craig","Office":"304"}
+... )
+WriteResult({ "nInserted" : 1 })
+
+-- Here we displayed all of the documents:
+> db.users.find({},{_id:0}).sort({"LastName":1})
+{ "LastName" : "Bloomberg", "FirstName" : "Amos", "Email" : "amos@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "LastName" : "Kapp", "FirstName" : "Craig", "Office" : "304" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- We sorted by email which simply left Prof Kapp's document (without an email address)
+-- at the top:
+> db.users.find({},{_id:0}).sort({"Email":1})
+{ "LastName" : "Kapp", "FirstName" : "Craig", "Office" : "304" }
+{ "LastName" : "Bloomberg", "FirstName" : "Amos", "Email" : "amos@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- We added Prof Versoza and a favorite color ... with a British / Canadian spelling:
+> db.users.insert({"LastName":"Versoza","FirstName":"Joe","FavouriteColour":"red"})
+WriteResult({ "nInserted" : 1 })
+
+-- ... and Prof Klukowska with a favorite color in an American spelling:
+-- We discussed in class the benfits and drawbacks of a dynamic schema.
+-- One drawback is that misspelled or differently spelled keys will lead to 
+-- problems in discoverability (finding) documents that we seek.
+> db.users.insert({"LastName":"Klukowska","FirstName":"Joanna","FavoriteColor":"blue"})
+WriteResult({ "nInserted" : 1 })
+
+-- How many documents in this collection?
+> db.users.count()
+7
+
+-- We deleted the document for Prof versoza:
+-- This is analagous to the SQL query:
+    DELETE
+    FROM users
+    WHERE LastName = "Versoza";
+    
+> db.users.remove({"LastName":"Versoza"})
+WriteResult({ "nRemoved" : 1 })
+
+-- 6 documents remain:
+> db.users.count()
+6
+
+-- If we do not specify a SELECTION of which documents delete,
+-- all of the document are removed. This is analagous to the SQL query:
+> db.users.remove({})
+WriteResult({ "nRemoved" : 6 })
+
+-- Zero documents remain:
+> db.users.count()
+0
+
+-- although 'users' remains in the collections:
+> show collections
+books
+books_csv
+earthquakes
+hotspots
+sd
+subways
+system.indexes
+users
+wifi
+zips
+
+-- One needs to DROP the collection in order to fully delete it:
+> db.users.drop()
+true
+> show collections
+books
+books_csv
+earthquakes
+hotspots
+sd
+subways
+system.indexes
+wifi
+zips
+> exit
+bye
+
+-- This is not a problem as we can re-import it.
+-- Notice that if we re-import it multiple times, we simply get multiple copies of the data.
+[de123@i6 mongodbFiles]$ mongoimport --db de123 --collection users --host class-mongodb.cims.nyu.edu --username de123 --password password --type json --file users.json
+2019-11-19T14:46:12.774-0500	connected to: class-mongodb.cims.nyu.edu
+2019-11-19T14:46:12.812-0500	imported 3 documents
+[de123@i6 mongodbFiles]$ mongoimport --db de123 --collection users --host class-mongodb.cims.nyu.edu --username de123 --password password --type json --file users.json
+2019-11-19T14:46:17.982-0500	connected to: class-mongodb.cims.nyu.edu
+2019-11-19T14:46:17.985-0500	imported 3 documents
+[de123@i6 mongodbFiles]$ mongoimport --db de123 --collection users --host class-mongodb.cims.nyu.edu --username de123 --password password --type json --file users.json
+2019-11-19T14:46:19.148-0500	connected to: class-mongodb.cims.nyu.edu
+2019-11-19T14:46:19.151-0500	imported 3 documents
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+
+-- ... with a result of 9 documents in the collection.
+> db.users.count()
+9
+> db.users.find({},{_id:0})
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+{ "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- mongodb considers each document unique as the ObjectId's are unique:
+> db.users.find({},{})
+{ "_id" : ObjectId("5dd44684c431561fbb41876b"), "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44684c431561fbb41876c"), "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44684c431561fbb41876d"), "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44689c431561fbb41876e"), "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44689c431561fbb41876f"), "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd44689c431561fbb418770"), "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd4468bc431561fbb418771"), "FirstName" : "Deena", "LastName" : "Engel", "Email" : "deena@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd4468bc431561fbb418772"), "FirstName" : "Romeo", "LastName" : "Kumar", "Email" : "kumar@cs.nyu.edu" }
+{ "_id" : ObjectId("5dd4468bc431561fbb418773"), "FirstName" : "LeeAnn", "LastName" : "Longi", "Email" : "longi@cs.nyu.edu" }
+
+-- so we used DROP and then re-imported the data once.
+> db.users.drop()
+true
+> exit
+bye
+[de123@i6 mongodbFiles]$ mongoimport --db de123 --collection users --host class-mongodb.cims.nyu.edu --username de123 --password password --type json --file users.json
+2019-11-19T14:48:42.282-0500	connected to: class-mongodb.cims.nyu.edu
+2019-11-19T14:48:42.286-0500	imported 3 documents
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+> db.users.count()
+3
+> exit
+bye
+
+-- The best way to add data to a collection is to add it to the .json file that is imported.
+[de123@i6 mongodbFiles]$ pico users.json
+[de123@i6 mongodbFiles]$ mongoimport --db de123 --collection users --host class-mongodb.cims.nyu.edu --username de123 --password password --type json --file users.json
+2019-11-19T14:50:13.527-0500	connected to: class-mongodb.cims.nyu.edu
+2019-11-19T14:50:13.529-0500	imported 4 documents
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+
+> db.users.count()
+4
+> exit
+bye
+
+-- Next we turned to the books collection.
+-- This .json file is also available on the class notes pages.
+
+-- What does a document in the books collection look like?
+> db.books.find().pretty().limit(1)
+{
+	"_id" : ObjectId("5dd3ec8bc431561fbb41874d"),
+	"title" : "Northanger Abbey",
+	"author" : "Austen, Jane",
+	"year_written" : 1814,
+	"edition" : "Penguin",
+	"price" : 18.2
+}
+> db.books.findOne()
+{
+	"_id" : ObjectId("5dd3ec8bc431561fbb41874d"),
+	"title" : "Northanger Abbey",
+	"author" : "Austen, Jane",
+	"year_written" : 1814,
+	"edition" : "Penguin",
+	"price" : 18.2
+}
+
+-- Display the title, author, year written in chronological order:
+> db.books.find({},{_id:0,"title":1,"author":1,"year_written":1}).sort({"year_written":1})
+{ "title" : "Hamlet, Prince of Denmark", "author" : "Shakespeare", "year_written" : 1603 }
+{ "title" : "Northanger Abbey", "author" : "Austen, Jane", "year_written" : 1814 }
+{ "title" : "Tom Sawyer", "author" : "Twain, Mark", "year_written" : 1862 }
+{ "title" : "War and Peace", "author" : "Tolstoy, Leo", "year_written" : 1865 }
+{ "title" : "Huckleberry Finn", "author" : "Twain, Mark", "year_written" : 1865 }
+{ "title" : "Bleak House", "author" : "Dickens, Charles", "year_written" : 1870 }
+{ "title" : "Anna Karenina", "author" : "Tolstoy, Leo", "year_written" : 1875 }
+{ "title" : "A Room of One's Own", "author" : "Woolf, Virginia", "year_written" : 1922 }
+{ "title" : "Mrs. Dalloway", "author" : "Woolf, Virginia", "year_written" : 1925 }
+{ "title" : "Lord of the Rings", "author" : "Tolkien, J.R.", "year_written" : 1937 }
+{ "title" : "One Hundred Years of Solitude", "author" : "Marquez", "year_written" : 1967 }
+{ "title" : "The Hours", "author" : "Cunnningham, Michael", "year_written" : 1999 }
+{ "title" : "Harry Potter", "author" : "Rowling, J.K.", "year_written" : 2000 }
+
+-- Display the title, author, year written in reverse chronological order:
+> db.books.find({},{_id:0,"title":1,"author":1,"year_written":1}).sort({"year_written":-1})
+{ "title" : "Harry Potter", "author" : "Rowling, J.K.", "year_written" : 2000 }
+{ "title" : "The Hours", "author" : "Cunnningham, Michael", "year_written" : 1999 }
+{ "title" : "One Hundred Years of Solitude", "author" : "Marquez", "year_written" : 1967 }
+{ "title" : "Lord of the Rings", "author" : "Tolkien, J.R.", "year_written" : 1937 }
+{ "title" : "Mrs. Dalloway", "author" : "Woolf, Virginia", "year_written" : 1925 }
+{ "title" : "A Room of One's Own", "author" : "Woolf, Virginia", "year_written" : 1922 }
+{ "title" : "Anna Karenina", "author" : "Tolstoy, Leo", "year_written" : 1875 }
+{ "title" : "Bleak House", "author" : "Dickens, Charles", "year_written" : 1870 }
+{ "title" : "War and Peace", "author" : "Tolstoy, Leo", "year_written" : 1865 }
+{ "title" : "Huckleberry Finn", "author" : "Twain, Mark", "year_written" : 1865 }
+{ "title" : "Tom Sawyer", "author" : "Twain, Mark", "year_written" : 1862 }
+{ "title" : "Northanger Abbey", "author" : "Austen, Jane", "year_written" : 1814 }
+{ "title" : "Hamlet, Prince of Denmark", "author" : "Shakespeare", "year_written" : 1603 }
+
+-- Display the title, and year written in reverse chronological order:
+> db.books.find({},{_id:0,"title":1,"year_written":1}).sort({"year_written":-1})
+
+{ "title" : "Harry Potter", "year_written" : 2000 }
+{ "title" : "The Hours", "year_written" : 1999 }
+{ "title" : "One Hundred Years of Solitude", "year_written" : 1967 }
+{ "title" : "Lord of the Rings", "year_written" : 1937 }
+{ "title" : "Mrs. Dalloway", "year_written" : 1925 }
+{ "title" : "A Room of One's Own", "year_written" : 1922 }
+{ "title" : "Anna Karenina", "year_written" : 1875 }
+{ "title" : "Bleak House", "year_written" : 1870 }
+{ "title" : "War and Peace", "year_written" : 1865 }
+{ "title" : "Huckleberry Finn", "year_written" : 1865 }
+{ "title" : "Tom Sawyer", "year_written" : 1862 }
+{ "title" : "Northanger Abbey", "year_written" : 1814 }
+{ "title" : "Hamlet, Prince of Denmark", "year_written" : 1603 }
+
+-- Display the title and price for the five cheapest books:
+> db.books.find({},{_id:0,"title":1,"price":1}).sort({"price":1}).limit(5)
+{ "title" : "Bleak House", "price" : 5.75 }
+{ "title" : "Huckleberry Finn", "price" : 5.76 }
+{ "title" : "Tom Sawyer", "price" : 7.75 }
+{ "title" : "Hamlet, Prince of Denmark", "price" : 7.95 }
+{ "title" : "The Hours", "price" : 12.35 }
+
+-- display the title and price for the three most expensive books:
+> db.books.find({},{_id:0,"title":1,"price":1}).sort({"price":-1}).limit(3)
+{ "title" : "A Room of One's Own", "price" : 29 }
+{ "title" : "Lord of the Rings", "price" : 27.45 }
+{ "title" : "Mrs. Dalloway", "price" : 25 }
+
+-- Display the title price for all books that cost over $10.
+-- Note the user of the operator $gt in the context of a key:value pair.
+> db.books.find({"price":{$gt:10}},{_id:0,"title":1,"price":1}).sort({"price":1})
+{ "title" : "The Hours", "price" : 12.35 }
+{ "title" : "War and Peace", "price" : 12.7 }
+{ "title" : "Anna Karenina", "price" : 13.5 }
+{ "title" : "One Hundred Years of Solitude", "price" : 14 }
+{ "title" : "Northanger Abbey", "price" : 18.2 }
+{ "title" : "Harry Potter", "price" : 19.95 }
+{ "title" : "Mrs. Dalloway", "price" : 25 }
+{ "title" : "Lord of the Rings", "price" : 27.45 }
+{ "title" : "A Room of One's Own", "price" : 29 }
+
+-- A question came up in class about adding a document with a null value for a key:
+> db.books.insert({"title":"Figuring","author":null})
+WriteResult({ "nInserted" : 1 })
+
+-- Note that the null value is display ahead of the rest of the sort in this case for the
+-- key "author":
+> db.books.find({},{_id:0,"title":1,"author":1}).sort({"author":1})
+{ "title" : "Figuring", "author" : null }
+{ "title" : "Northanger Abbey", "author" : "Austen, Jane" }
+{ "title" : "The Hours", "author" : "Cunnningham, Michael" }
+{ "title" : "Bleak House", "author" : "Dickens, Charles" }
+{ "title" : "One Hundred Years of Solitude", "author" : "Marquez" }
+{ "title" : "Harry Potter", "author" : "Rowling, J.K." }
+{ "title" : "Hamlet, Prince of Denmark", "author" : "Shakespeare" }
+{ "title" : "Lord of the Rings", "author" : "Tolkien, J.R." }
+{ "title" : "War and Peace", "author" : "Tolstoy, Leo" }
+{ "title" : "Anna Karenina", "author" : "Tolstoy, Leo" }
+{ "title" : "Huckleberry Finn", "author" : "Twain, Mark" }
+{ "title" : "Tom Sawyer", "author" : "Twain, Mark" }
+{ "title" : "Mrs. Dalloway", "author" : "Woolf, Virginia" }
+{ "title" : "A Room of One's Own", "author" : "Woolf, Virginia" }
+
+-- In asnwer to class discussion question, we also added a document
+-- without an author:
+> db.books.insert({"title":"Die Winterreise","author":""})
+WriteResult({ "nInserted" : 1 })
+> db.books.find({},{_id:0,"title":1,"author":1}).sort({"author":1})
+{ "title" : "Figuring", "author" : null }
+{ "title" : "Die Winterreise", "author" : "" }
+{ "title" : "Northanger Abbey", "author" : "Austen, Jane" }
+{ "title" : "The Hours", "author" : "Cunnningham, Michael" }
+{ "title" : "Bleak House", "author" : "Dickens, Charles" }
+{ "title" : "One Hundred Years of Solitude", "author" : "Marquez" }
+{ "title" : "Harry Potter", "author" : "Rowling, J.K." }
+{ "title" : "Hamlet, Prince of Denmark", "author" : "Shakespeare" }
+{ "title" : "Lord of the Rings", "author" : "Tolkien, J.R." }
+{ "title" : "War and Peace", "author" : "Tolstoy, Leo" }
+{ "title" : "Anna Karenina", "author" : "Tolstoy, Leo" }
+{ "title" : "Huckleberry Finn", "author" : "Twain, Mark" }
+{ "title" : "Tom Sawyer", "author" : "Twain, Mark" }
+{ "title" : "Mrs. Dalloway", "author" : "Woolf, Virginia" }
+{ "title" : "A Room of One's Own", "author" : "Woolf, Virginia" }
+> 

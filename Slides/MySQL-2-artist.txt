@@ -1,0 +1,395 @@
+-- CSCI-UA.60-1 
+-- MySQL
+-- Class notes / transcript
+-- November 5, 2019
+
+-- First we ran the SQL script for working with JOIN queries on our "toy" database.
+-- This script is available on the class notes page.
+MariaDB [de123_db1]> SOURCE artists_media_paintings_4sql.sql;
+
+Query OK, 0 rows affected (0.00 sec)
+... 
+Query OK, 1 row affected (0.00 sec)
+
+-- We started by using an "implicit" (implied) inner join by building 
+-- the relationship between the artist and paintings tables in the WHERE clause:
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin
+    -> FROM paintings p, artists a
+    -> WHERE a.artist_name = p.ptg_artist_name
+    -> ORDER BY p.ptg_title;
++---------------------------+-------------------------+---------------+
+| ptg_title                 | artist_name             | artist_origin |
++---------------------------+-------------------------+---------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        |
+| Evening, Honfleur         | Seurat, Georges         | France        |
+| Foliage                   | Cezanne, Paul           | France        |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       |
+| Guitar                    | Picasso, Pablo          | Spain         |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         |
+| Last Supper               | da Vinci, Leonardo      | Italy         |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        |
+| The Bather                | Cezanne, Paul           | France        |
+| The Starry Night          | Van Gogh, Vincent       | Holland       |
++---------------------------+-------------------------+---------------+
+12 rows in set (0.00 sec)
+
+-- We amended the WHERE clause to restrict our selection to
+-- works by French artists.
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin
+    -> FROM paintings p, artists a
+    -> WHERE a.artist_name = p.ptg_artist_name
+    ->   AND a.artist_origin = "France"
+    -> ORDER BY p.ptg_title;
++---------------------------+-------------------------+---------------+
+| ptg_title                 | artist_name             | artist_origin |
++---------------------------+-------------------------+---------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        |
+| Evening, Honfleur         | Seurat, Georges         | France        |
+| Foliage                   | Cezanne, Paul           | France        |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        |
+| The Bather                | Cezanne, Paul           | France        |
++---------------------------+-------------------------+---------------+
+5 rows in set (0.00 sec)
+
+-- We further restricted our selection to oil paintings by French artists:
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,p.ptg_medium
+    -> FROM paintings p, artists a
+    -> WHERE a.artist_name = p.ptg_artist_name
+    ->   AND a.artist_origin = "France"
+    ->   AND p.ptg_medium    = "oil"
+    -> ORDER BY p.ptg_title;
++-------------------+-----------------+---------------+------------+
+| ptg_title         | artist_name     | artist_origin | ptg_medium |
++-------------------+-----------------+---------------+------------+
+| Evening, Honfleur | Seurat, Georges | France        | oil        |
+| The Bather        | Cezanne, Paul   | France        | oil        |
++-------------------+-----------------+---------------+------------+
+2 rows in set (0.00 sec)
+
+-- Next we ran the same queries using an explicit INNER JOIN query:
+
+-- Here we used an INNER JOIN query to display all of the records in the paintings table:
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,p.ptg_medium
+    -> FROM paintings p
+    -> INNER JOIN artists a ON p.ptg_artist_name = a.artist_name
+    -> ORDER BY p.ptg_title;
++---------------------------+-------------------------+---------------+------------+
+| ptg_title                 | artist_name             | artist_origin | ptg_medium |
++---------------------------+-------------------------+---------------+------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        | pastel     |
+| Evening, Honfleur         | Seurat, Georges         | France        | oil        |
+| Foliage                   | Cezanne, Paul           | France        | watercolor |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       | oil        |
+| Guitar                    | Picasso, Pablo          | Spain         | mixed      |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         | oil        |
+| Last Supper               | da Vinci, Leonardo      | Italy         | fresco     |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         | oil        |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       | oil        |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        | crayon     |
+| The Bather                | Cezanne, Paul           | France        | oil        |
+| The Starry Night          | Van Gogh, Vincent       | Holland       | oil        |
++---------------------------+-------------------------+---------------+------------+
+12 rows in set (0.00 sec)
+
+-- ... and then we added a WHERE clause to restrict our selection to oil paintings
+-- by French artists.
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,p.ptg_medium
+    -> FROM paintings p
+    -> INNER JOIN artists a ON a.artist_name = p.ptg_artist_name
+    -> WHERE p.ptg_medium = "oil"
+    ->   AND a.artist_origin = "France"
+    -> ORDER BY p.ptg_title;
++-------------------+-----------------+---------------+------------+
+| ptg_title         | artist_name     | artist_origin | ptg_medium |
++-------------------+-----------------+---------------+------------+
+| Evening, Honfleur | Seurat, Georges | France        | oil        |
+| The Bather        | Cezanne, Paul   | France        | oil        |
++-------------------+-----------------+---------------+------------+
+2 rows in set (0.00 sec)
+
+-- We then built a query on two relationships:
+--     artists / paintings 
+--     media   / paintings
+-- using the WHERE clause to express these relationships among the tables:
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,m.med_description
+    -> FROM paintings p, artists a, media m 
+    -> WHERE p.ptg_artist_name = a.artist_name
+    ->   AND p.ptg_medium = m.med_medium
+    -> ORDER BY p.ptg_title;
++---------------------------+-------------------------+---------------+--------------------------+
+| ptg_title                 | artist_name             | artist_origin | med_description          |
++---------------------------+-------------------------+---------------+--------------------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        | Pastel on paper          |
+| Evening, Honfleur         | Seurat, Georges         | France        | Oil on canvas            |
+| Foliage                   | Cezanne, Paul           | France        | Watercolor on paper      |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       | Oil on canvas            |
+| Guitar                    | Picasso, Pablo          | Spain         | Mixed Media              |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         | Oil on canvas            |
+| Last Supper               | da Vinci, Leonardo      | Italy         | Tempera fresco on a wall |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         | Oil on canvas            |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       | Oil on canvas            |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        | Conte crayon on paper    |
+| The Bather                | Cezanne, Paul           | France        | Oil on canvas            |
+| The Starry Night          | Van Gogh, Vincent       | Holland       | Oil on canvas            |
++---------------------------+-------------------------+---------------+--------------------------+
+12 rows in set (0.00 sec)
+
+-- Displaying the title, artist, country and description of the medium
+-- for French oil paintings requires additions to the WHERE clause as follows;
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,m.med_description
+    -> FROM paintings p, artists a, media m 
+    -> WHERE p.ptg_artist_name = a.artist_name
+    ->   AND p.ptg_medium      = m.med_medium
+    ->   AND a.artist_origin   = "France"
+    ->   AND p.ptg_medium      = "oil"
+    -> ORDER BY p.ptg_title;
++-------------------+-----------------+---------------+-----------------+
+| ptg_title         | artist_name     | artist_origin | med_description |
++-------------------+-----------------+---------------+-----------------+
+| Evening, Honfleur | Seurat, Georges | France        | Oil on canvas   |
+| The Bather        | Cezanne, Paul   | France        | Oil on canvas   |
++-------------------+-----------------+---------------+-----------------+
+2 rows in set (0.00 sec)
+
+-- We next wrote a query using two INNER JOINs:
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,m.med_description
+    -> FROM paintings p
+    -> INNER JOIN artists a ON a.artist_name = p.ptg_artist_name
+    -> INNER JOIN media   m ON m.med_medium  = p.ptg_medium
+    -> ORDER BY p.ptg_title;
++---------------------------+-------------------------+---------------+--------------------------+
+| ptg_title                 | artist_name             | artist_origin | med_description          |
++---------------------------+-------------------------+---------------+--------------------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        | Pastel on paper          |
+| Evening, Honfleur         | Seurat, Georges         | France        | Oil on canvas            |
+| Foliage                   | Cezanne, Paul           | France        | Watercolor on paper      |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       | Oil on canvas            |
+| Guitar                    | Picasso, Pablo          | Spain         | Mixed Media              |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         | Oil on canvas            |
+| Last Supper               | da Vinci, Leonardo      | Italy         | Tempera fresco on a wall |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         | Oil on canvas            |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       | Oil on canvas            |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        | Conte crayon on paper    |
+| The Bather                | Cezanne, Paul           | France        | Oil on canvas            |
+| The Starry Night          | Van Gogh, Vincent       | Holland       | Oil on canvas            |
++---------------------------+-------------------------+---------------+--------------------------+
+12 rows in set (0.00 sec)
+
+-- And then added a WHERE clause to the query with two INNER JOIN clauses.
+-- This query appears to be more "readable"; in any case, it will give the same results
+-- as the query above using the WHERE clause to establish the relationships
+-- among the tables.
+
+MariaDB [de123_db1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,m.med_description
+    -> FROM paintings p
+    -> INNER JOIN artists a ON p.ptg_artist_name = a.artist_name 
+    -> INNER JOIN media   m ON p.ptg_medium      = m.med_medium
+    -> WHERE a.artist_origin = "France"
+    ->   AND m.med_medium    = "oil"
+    -> ORDER BY p.ptg_title;
++-------------------+-----------------+---------------+-----------------+
+| ptg_title         | artist_name     | artist_origin | med_description |
++-------------------+-----------------+---------------+-----------------+
+| Evening, Honfleur | Seurat, Georges | France        | Oil on canvas   |
+| The Bather        | Cezanne, Paul   | France        | Oil on canvas   |
++-------------------+-----------------+---------------+-----------------+
+2 rows in set (0.00 sec)
+
+-- Next we looked at AGGREGATE functions, specifically COUNT( ) and SUM( ):
+
+-- What is the total value of this "toy" collection?
+-- This require uses only one table.
+
+MariaDB [de123_db1]> SELECT SUM(ptg_appraisal_amount)
+    -> FROM paintings;
++---------------------------+
+| SUM(ptg_appraisal_amount) |
++---------------------------+
+|              129600000.00 |
++---------------------------+
+1 row in set (0.00 sec)
+
+-- What is the breakdown in the value of the collection by medium?
+-- This require uses only one table.
+
+MariaDB [de123_db1]> SELECT m.med_description,SUM(p.ptg_appraisal_amount) AS t
+    -> FROM paintings p
+    -> INNER JOIN media m ON p.ptg_medium = m.med_medium
+    -> GROUP BY m.med_medium
+    -> ORDER BY t DESC;
++--------------------------+-------------+
+| med_description          | t           |
++--------------------------+-------------+
+| Oil on canvas            | 90500000.00 |
+| Tempera fresco on a wall | 30000000.00 |
+| Watercolor on paper      |  5000000.00 |
+| Pastel on paper          |  2500000.00 |
+| Mixed Media              |   850000.00 |
+| Conte crayon on paper    |   750000.00 |
++--------------------------+-------------+
+6 rows in set (0.00 sec)
+
+-- However, if we want to know how many works of art represent each
+-- country in this collection, we need to use two tables.
+
+-- Note that serious studies of major museums take this approach
+-- as one way to consider whether the museum or collection reflects
+-- a truly international display.
+
+MariaDB [de123_db1]> SELECT a.artist_origin,COUNT(p.ptg_title)
+    -> FROM paintings p
+    -> INNER JOIN artists a ON p.ptg_artist_name = a.artist_name
+    -> GROUP BY a.artist_origin
+    -> ORDER BY a.artist_origin;
++---------------+--------------------+
+| artist_origin | COUNT(p.ptg_title) |
++---------------+--------------------+
+| France        |                  5 |
+| Holland       |                  3 |
+| Italy         |                  2 |
+| Spain         |                  2 |
++---------------+--------------------+
+4 rows in set (0.00 sec)
+
+-- Next we discussed LEFT and RIGHT JOIN queries.
+
+-- In a LEFT JOIN, the queries returns all of the records in the LEFT table,
+-- whether there is a match in the RIGHT table or not.
+
+-- By convention, the LEFT table refers to the table holding the 
+-- PRIMARY KEY for the relationship and the RIGHT table holds
+-- the FOREIGN KEY for the relationship between the tables.
+
+-- Notice that the result of the LEFT query shows us that
+-- there are two artists on file ... for whom we do not have
+-- artworks in our paintings table.
+
+-- This not NOT a data integrity problem.
+-- It is also NOT a referential integrity problem.
+-- It is surely plausible that there are artists in the artists' table ...
+-- for whom we do not have artworks in our collection.
+
+-- We discussed other scenarios in class where this can happen and
+-- the meaning of the results.
+
+MariaDB [de123_db1]> SELECT a.artist_name,p.ptg_title
+    -> FROM artists a
+    -> LEFT JOIN paintings p ON a.artist_name = p.ptg_artist_name
+    -> ORDER BY a.artist_name,p.ptg_title;
++-------------------------+---------------------------+
+| artist_name             | ptg_title                 |
++-------------------------+---------------------------+
+| Cassatt, Mary           | NULL                      |
+| Cezanne, Paul           | Foliage                   |
+| Cezanne, Paul           | The Bather                |
+| da Vinci, Leonardo      | La Jaconde [Mona Lisa]    |
+| da Vinci, Leonardo      | Last Supper               |
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Picasso, Pablo          | Guitar                    |
+| Picasso, Pablo          | Les Demoiselles d'Avignon |
+| Rembrandt van Rijn      | Self-Portrait             |
+| Seurat, Georges         | Evening, Honfleur         |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Van Gogh, Vincent       | The Starry Night          |
+| Vermeer, Johannes       | Girl with a Pearl Earring |
+| Wood, Grant             | NULL                      |
++-------------------------+---------------------------+
+14 rows in set (0.00 sec)
+
+-- What if we only want to see the artists in our artists table
+-- without artworks in the paintings table?
+
+-- Here we introduced the expression IS NULL
+-- into the WHERE clause.
+
+MariaDB [de123_db1]> SELECT a.artist_name,p.ptg_title
+    -> FROM artists a
+    -> LEFT JOIN paintings p ON a.artist_name = p.ptg_artist_name
+    -> WHERE p.ptg_title IS NULL
+    -> ORDER BY a.artist_name;
++---------------+-----------+
+| artist_name   | ptg_title |
++---------------+-----------+
+| Cassatt, Mary | NULL      |
+| Wood, Grant   | NULL      |
++---------------+-----------+
+2 rows in set (0.00 sec)
+
+-- In order to examine RIGHT JOINs, we need to run a new SQL script
+-- which suppresses the MySQL functionality to ensure referential integrity.
+
+-- This script is also available on the class notes page.
+
+MariaDB [de123_db1]> SOURCE artists_media_paintings_4sql_RightJoins.sql;
+
+Query OK, 0 rows affected (0.00 sec)
+...
+Query OK, 1 row affected (0.01 sec)
+
+-- Notice that when we run a RIGHT JOIN from the artists' table,
+-- we see that there is a painting on file without an artist.
+
+-- This means that the database does not comply with 
+-- referential integrity.
+
+-- This is a data problem!
+
+-- On the other hand ... RIGHT JOIN queries can be very effectively
+-- used to identify and to clean up a dataset where such anomalies exist.
+
+MariaDB [de123_db1]> SELECT a.artist_name,p.ptg_title
+    -> FROM artists a
+    -> RIGHT JOIN paintings p ON a.artist_name = p.ptg_artist_name
+    -> ORDER BY p.ptg_title;
++-------------------------+---------------------------+
+| artist_name             | ptg_title                 |
++-------------------------+---------------------------+
+| NULL                    | American Gothic           |
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Seurat, Georges         | Evening, Honfleur         |
+| Cezanne, Paul           | Foliage                   |
+| Vermeer, Johannes       | Girl with a Pearl Earring |
+| Picasso, Pablo          | Guitar                    |
+| da Vinci, Leonardo      | La Jaconde [Mona Lisa]    |
+| da Vinci, Leonardo      | Last Supper               |
+| Picasso, Pablo          | Les Demoiselles d'Avignon |
+| Rembrandt van Rijn      | Self-Portrait             |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Cezanne, Paul           | The Bather                |
+| Van Gogh, Vincent       | The Starry Night          |
++-------------------------+---------------------------+
+13 rows in set (0.00 sec)
+
+-- Which painting(s), if any, are on file for which there is 
+-- no artist on file?
+
+-- Here again we see the IS NULL expression to search for those records.
+
+MariaDB [de123_db1]> SELECT a.artist_name,p.ptg_title
+    -> FROM artists a
+    -> RIGHT JOIN paintings p ON a.artist_name = p.ptg_artist_name
+    -> WHERE a.artist_name IS NULL
+    -> ORDER BY p.ptg_title;
++-------------+-----------------+
+| artist_name | ptg_title       |
++-------------+-----------------+
+| NULL        | American Gothic |
++-------------+-----------------+
+1 row in set (0.00 sec)
+
+-- Be sure to run the other query to set your database back to "health"!
+
+MariaDB [de123_db1]> SOURCE artists_media_paintings_4sql.sql;
+Query OK, 0 rows affected (0.00 sec)
+...
+Query OK, 0 rows affected (0.01 sec)

@@ -1,0 +1,327 @@
+-- CSCI-UA.60-1 
+-- CLASS NOTES THURSDAY 10/3/2019
+-- WORKSHOP, PART 2
+
+-- This is the table we are using:
+
+sqlite> .schema deaths
+CREATE TABLE IF NOT EXISTS 'deaths' (
+	'Year'	TEXT,
+	'Code_CauseName'	TEXT,
+	'CauseName'	TEXT,
+	'State'	TEXT,
+	'Deaths'	INTEGER,
+	'Age-adjustedDeathRate'	REAL
+);
+
+-- Question 8: How many deaths are there for each cause of over 2,000,000 
+-- deaths in this table?
+
+-- For this question, we looked at causes with the most deaths to assess the data.
+-- Then we discussed the differences between WHERE and HAVING.
+
+-- This query requires the keyword HAVING because we are looking to restrict
+-- our resulting dataset by criteria based on the GROUP BY results rather than
+-- based on individual records (which would use WHERE).
+
+sqlite> .mode columns
+sqlite> SELECT CauseName,SUM(deaths)
+   ...> FROM deaths
+   ...> GROUP BY CauseName
+   ...> ORDER BY SUM(deaths) DESC;
+Diseases of Heart  10939923   
+Cancer             9646498    
+Stroke             2437998    
+CLRD               2280130    
+Unintentional Inj  2016510    
+Alzheimer's disea  1257309    
+Diabetes           1236321    
+Influenza and pne  987432     
+Kidney Disease     757934     
+Suicide            604878     
+Septicemia         594484     
+Chronic liver dis  521837     
+Essential hyperte  420539.0   
+Parkinson's disea  348259     
+Homicide           295256.0   
+Pneumonitis due t  294891.0   
+
+-- The "top" five (worst) killers in the U.S. in this time-frame:
+
+sqlite> SELECT CauseName,SUM(deaths)
+   ...> FROM deaths
+   ...> GROUP BY CauseName
+   ...> ORDER BY SUM(deaths) DESC
+   ...> LIMIT 5;
+Diseases of Heart  10939923   
+Cancer             9646498    
+Stroke             2437998    
+CLRD               2280130    
+Unintentional Inj  2016510    
+
+-- The diseases that killed over 2,000,000 people in this time-frame:
+
+sqlite> .width 40,20
+sqlite> SELECT CauseName,SUM(deaths) AS d
+   ...> FROM deaths
+   ...> GROUP BY CauseName
+   ...> HAVING d > 2000000
+   ...> ORDER BY CauseName;
+CLRD                                      2280130   
+Cancer                                    9646498   
+Diseases of Heart                         10939923  
+Stroke                                    2437998   
+Unintentional Injuries                    2016510   
+
+-- QUESTION 9 - How many people died in New York state in 2010 
+-- for each cause/disease?
+
+sqlite> SELECT CauseName,SUM(deaths) AS d
+   ...> FROM deaths
+   ...> WHERE State = "New York"
+   ...>   AND Year  = 2010
+   ...> GROUP BY CauseName
+   ...> ORDER BY CauseName;
+Alzheimer's disease                       2616      
+CLRD                                      6847      
+Cancer                                    35431     
+Chronic liver disease and cirrhosis       1434      
+Diabetes                                  3642      
+Diseases of Heart                         44981     
+Essential hypertension and hypertensive   2048      
+Homicide                                  898       
+Influenza and pneumonia                   4642      
+Kidney Disease                            2439      
+Parkinson's disease                       972       
+Pneumonitis due to solids and liquids     756       
+Septicemia                                2210      
+Stroke                                    6213      
+Suicide                                   1547      
+Unintentional Injuries                    5004      
+
+-- Due to the table and records structure, 
+-- SUM() is not needed here.
+
+-- QUESTION #10: How many people died in New York by homicide for each year on file?
+
+-- Here we found evidence of 9/11.
+
+sqlite> SELECT CauseName,deaths,State,Year
+   ...> FROM deaths
+   ...> WHERE State = "New York"
+   ...>   AND Year  = 2010
+   ...> ORDER BY CauseName;
+Alzheimer's disease                       2616        New York    2010      
+CLRD                                      6847        New York    2010      
+Cancer                                    35431       New York    2010      
+Chronic liver disease and cirrhosis       1434        New York    2010      
+Diabetes                                  3642        New York    2010      
+Diseases of Heart                         44981       New York    2010      
+Essential hypertension and hypertensive   2048        New York    2010      
+Homicide                                  898         New York    2010      
+Influenza and pneumonia                   4642        New York    2010      
+Kidney Disease                            2439        New York    2010      
+Parkinson's disease                       972         New York    2010      
+Pneumonitis due to solids and liquids     756         New York    2010      
+Septicemia                                2210        New York    2010      
+Stroke                                    6213        New York    2010      
+Suicide                                   1547        New York    2010      
+Unintentional Injuries                    5004        New York    2010      
+
+-- Looking at homicides in New York state over time:
+
+sqlite> SELECT Year,SUM(deaths),CauseName
+   ...> FROM deaths
+   ...> WHERE CauseName = "Homicide"
+   ...>   AND State     = "New York"
+   ...> GROUP BY Year
+   ...> ORDER BY year;
+1999                                      969          Homicide  
+2000                                      991          Homicide  
+2001                                      2818         Homicide  
+2002                                      929          Homicide  
+2003                                      963          Homicide  
+2004                                      860          Homicide  
+2005                                      901          Homicide  
+2006                                      962          Homicide  
+2007                                      840          Homicide  
+2008                                      882          Homicide  
+2009                                      840          Homicide  
+2010                                      898          Homicide  
+2011                                      830          Homicide  
+2012                                      730          Homicide  
+2013                                      686          Homicide  
+2014                                      662          Homicide  
+2015                                      671          Homicide  
+
+-- In this particualr file, due to the table and record structures,
+-- the data are already aggregated and SUM() is not needed.
+
+sqlite> SELECT Year,Deaths
+   ...> FROM deaths
+   ...> WHERE CauseName = "Homicide"
+   ...>   AND State     = "New York"
+   ...> ORDER BY Year;
+1999                                      969       
+2000                                      991       
+2001                                      2818      
+2002                                      929       
+2003                                      963       
+2004                                      860       
+2005                                      901       
+2006                                      962       
+2007                                      840       
+2008                                      882       
+2009                                      840       
+2010                                      898       
+2011                                      830       
+2012                                      730       
+2013                                      686       
+2014                                      662       
+2015                                      671       
+
+-- QUESTION #11: How many people died in New York, Pennsylvania, New Jersey and Illinois -- for each of the years 2000,2001,and 2002? (Write one query to answer this.)
+
+-- In class, we only answered part of the question, which is for the four states:
+
+-- first, we aggregated by Year:
+
+sqlite> SELECT Year,SUM(deaths) AS d
+   ...> FROM deaths
+   ...> WHERE State = "New York"
+   ...>    OR State = "Pennsylvania"
+   ...>    OR State = "New Jersey"
+   ...>    OR State = "Illinois"
+   ...> GROUP BY Year
+   ...> ORDER BY Year;
+1999                                      404701    
+2000                                      400978    
+2001                                      399354    
+2002                                      397222    
+2003                                      391990    
+2004                                      381707    
+2005                                      382741    
+2006                                      370868    
+2007                                      367018    
+2008                                      371500    
+2009                                      360839    
+2010                                      359948    
+2011                                      364158    
+2012                                      361709    
+2013                                      365736    
+2014                                      365128    
+2015                                      374602    
+
+-- then we aggregated by state and year:
+
+sqlite> SELECT Year,State,SUM(deaths) AS d
+   ...> FROM deaths
+   ...> WHERE State = "New York"
+   ...>    OR State = "New Jersey"
+   ...>    OR State = "Pennsylvania"
+   ...>    OR State = "Illinois"
+   ...> GROUP BY State,Year
+   ...> ORDER BY State,Year;
+1999                                      Illinois    92628     
+2000                                      Illinois    90875     
+2001                                      Illinois    89636     
+2002                                      Illinois    90300     
+2003                                      Illinois    88444     
+2004                                      Illinois    86239     
+2005                                      Illinois    86884     
+2006                                      Illinois    84613     
+2007                                      Illinois    83171     
+2008                                      Illinois    85112     
+2009                                      Illinois    82095     
+2010                                      Illinois    81413     
+2011                                      Illinois    82238     
+2012                                      Illinois    82510     
+2013                                      Illinois    83295     
+2014                                      Illinois    84669     
+2015                                      Illinois    86367     
+1999                                      New Jersey  62819     
+...
+2013                                      Pennsylvan  101934    
+2014                                      Pennsylvan  101747    
+2015                                      Pennsylvan  105314    
+
+-- and then by year and state:
+
+sqlite> SELECT Year,State,SUM(deaths) AS d
+   ...> FROM deaths
+   ...> WHERE State = "New York"
+   ...>    OR State = "New Jersey"
+   ...>    OR State = "Pennsylvania"
+   ...>    OR State = "Illinois"
+   ...> GROUP BY State,Year
+   ...> ORDER BY Year,State;
+1999                                      Illinois    92628     
+1999                                      New Jersey  62819     
+1999                                      New York    137985    
+1999                                      Pennsylvan  111269    
+2000                                      Illinois    90875     
+2000                                      New Jersey  63619     
+... 
+2014                                      New York    121855    
+2014                                      Pennsylvan  101747    
+2015                                      Illinois    86367     
+2015                                      New Jersey  58017     
+2015                                      New York    124904    
+2015                                      Pennsylvan  105314    
+
+-- However in class we did not fully answer the question, which
+-- is to limit the results to the years 2000, 2001, 2002:
+
+sqlite> sqlite> SELECT Year,State,Deaths
+   ...> FROM deaths
+   ...> WHERE (State = "New York"
+   ...>    OR State = "New Jersey"
+   ...>    OR State = "Pennsylvania"
+   ...>    OR State = "Illinois")
+   ...>   AND (Year = 2010
+   ...>    OR  Year = 2011
+   ...>    OR  Year = 2012)
+   ...> GROUP BY State,Year
+   ...> ORDER BY State,Year;
+2010                                      Illinois    2927      
+2011                                      Illinois    2910      
+2012                                      Illinois    2865      
+2010                                      New Jersey  1878      
+2011                                      New Jersey  1960      
+2012                                      New Jersey  1881      
+2010                                      New York    2616      
+2011                                      New York    2563      
+2012                                      New York    2640      
+2010                                      Pennsylvan  3591      
+2011                                      Pennsylvan  3496      
+2012                                      Pennsylvan  3505      
+sqlite> 
+
+-- We returned to QUESTION #3:
+-- If the years span a longer period, how can you see if there are data for every year?
+
+-- A student in the class asked for a boolean-type answer.
+
+-- These queries can be built or worked on together to find the result.
+
+sqlite> SELECT MAX(Year) FROM deaths;
+2015                                    
+sqlite> SELECT MIN(Year) FROM deaths;
+1999                                    
+sqlite> SELECT (SELECT MAX(Year) FROM deaths) -
+   ...>        (SELECT MIN(Year) FROM deaths);
+16                                      
+sqlite> SELECT (SELECT MAX(Year) FROM deaths) -
+   ...>        (SELECT MIN(Year) FROM deaths) +1;
+17                                      
+sqlite> SELECT MAX(Year)-MIN(Year) 
+   ...> FROM deaths;
+16                                      
+sqlite> SELECT COUNT(DISTINCT Year) FROM deaths;
+17                                      
+
+-- The answer, computed to zero, is YES.
+sqlite> SELECT MAX(Year)-MIN(Year)+1 - COUNT(DISTINCT Year) FROM deaths;
+0                                       
+
+sqlite> 

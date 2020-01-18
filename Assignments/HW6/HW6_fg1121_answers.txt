@@ -1,0 +1,85 @@
+1.	How many zip codes are there in your home state?
+
+There are 1595 zipcodes in New York. # But it seems that our database omitted some PO boxes.
+
+2.	List the five least heavily populated zipcodes (those that have the smallest populations) in Georgia. (Hint: Be sure to exclude zip codes with a population of zero; as these data are likely to be missing or incorrect.)
+
+30346
+30148
+31743
+31327
+31066
+
+3.	List the zip code and population for three zip codes in the Bronx.
+
+{ "_id" : "10451", "pop" : 42854 }
+{ "_id" : "10452", "pop" : 55890 }
+{ "_id" : "10453", "pop" : 70544 }
+
+4.	How many zip codes are there altogether in the Continental United States (excluding Hawaii, Alaska and Puerto Rico)?
+
+29078
+
+5.	How many zip codes are there altogether in New York, New Jersey, and Connecticut (NY, NJ, CT)?
+
+2398
+
+6.	Write two additional analytic queries of your choice for any state or group of states.
+
+6-1. List all the cities in District of Columbia.
+
+[ "WASHINGTON", "PENTAGON" ]
+The result indicates that the Pentagon, though seemingly being located in Virginia, is instead a part of DC.
+
+6-2. Count the population in each state.
+{ "_id" : "AK", "total" : 544698 }
+{ "_id" : "AZ", "total" : 3665228 }
+{ "_id" : "UT", "total" : 1722850 }
+{ "_id" : "WY", "total" : 453528 }
+{ "_id" : "CO", "total" : 3293755 }
+{ "_id" : "ID", "total" : 1006749 }
+{ "_id" : "OK", "total" : 3145585 }
+{ "_id" : "AR", "total" : 2350725 }
+{ "_id" : "LA", "total" : 4217595 }
+{ "_id" : "NV", "total" : 1201833 }
+{ "_id" : "NE", "total" : 1578139 }
+{ "_id" : "KS", "total" : 2475285 }
+{ "_id" : "MO", "total" : 5110648 }
+{ "_id" : "IL", "total" : 11427576 }
+{ "_id" : "OH", "total" : 10846517 }
+{ "_id" : "KY", "total" : 3675484 }
+{ "_id" : "IN", "total" : 5544136 }
+{ "_id" : "WI", "total" : 4891769 }
+{ "_id" : "HI", "total" : 1108229 }
+{ "_id" : "MS", "total" : 2573216 }
+{ "_id" : "IA", "total" : 2776420 }
+{ "_id" : "AL", "total" : 4040587 }
+{ "_id" : "FL", "total" : 12686644 }
+{ "_id" : "MI", "total" : 9295297 }
+{ "_id" : "OR", "total" : 2842321 }
+{ "_id" : "GA", "total" : 6478216 }
+{ "_id" : "NC", "total" : 6628637 }
+{ "_id" : "MT", "total" : 798948 }
+{ "_id" : "ND", "total" : 638272 }
+{ "_id" : "MD", "total" : 4781379 }
+{ "_id" : "MN", "total" : 4372982 }
+{ "_id" : "DC", "total" : 606900 }
+{ "_id" : "DE", "total" : 666168 }
+{ "_id" : "WV", "total" : 1793146 }
+{ "_id" : "NJ", "total" : 7730188 }
+{ "_id" : "TN", "total" : 4876457 }
+{ "_id" : "VA", "total" : 6181479 }
+{ "_id" : "NY", "total" : 17990402 }
+{ "_id" : "WA", "total" : 4866692 }
+{ "_id" : "CT", "total" : 3287116 }
+{ "_id" : "SC", "total" : 3486703 }
+{ "_id" : "PA", "total" : 11881643 }
+{ "_id" : "VT", "total" : 562758 }
+{ "_id" : "TX", "total" : 16984601 }
+{ "_id" : "SD", "total" : 695397 }
+{ "_id" : "NH", "total" : 1109252 }
+{ "_id" : "CA", "total" : 29754890 }
+{ "_id" : "NM", "total" : 1515069 }
+{ "_id" : "RI", "total" : 1003218 }
+{ "_id" : "ME", "total" : 1226648 }
+{ "_id" : "MA", "total" : 6016425 }

@@ -1,0 +1,388 @@
+-- CSCI-UA.60-1 - CLASS WORKSHOP #1 - SQLITE
+
+-- All of the data and the class handout are posted to:
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_sqlite_fa19.html
+
+-- After creating the database and running the script, we checked to be sure 
+-- that the table is available.
+
+sqlite> .tables
+deaths
+sqlite> .schema deaths
+CREATE TABLE IF NOT EXISTS 'deaths' (
+	'Year'	TEXT,
+	'Code_CauseName'	TEXT,
+	'CauseName'	TEXT,
+	'State'	TEXT,
+	'Deaths'	INTEGER,
+	'Age-adjustedDeathRate'	REAL
+);
+
+sqlite> .read deathCauses_script.sql
+sqlite> .tables
+deaths
+sqlite> .schema deaths
+CREATE TABLE IF NOT EXISTS 'deaths' (
+	'Year'	TEXT,
+	'Code_CauseName'	TEXT,
+	'CauseName'	TEXT,
+	'State'	TEXT,
+	'Deaths'	INTEGER,
+	'Age-adjustedDeathRate'	REAL
+);
+
+-- (1) How many records are in this table?
+
+sqlite> SELECT COUNT(*) FROM deaths;
+14144
+
+-- (2) Which is the first year included in this table? The last year?
+
+sqlite> SELECT MIN(Year),MAX(Year)
+   ...> FROM deaths;
+1999,2015
+
+-- (3) If the years span a longer period, how can you see if there are data for every year?
+
+sqlite> SELECT DISTINCT Year
+   ...> FROM deaths
+   ...> ORDER BY Year;
+1999
+2000
+2001
+2002
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+
+-- or you could use:
+
+sqlite> SELECT COUNT(DISTINCT Year) FROM deaths;
+17
+
+-- We will return to this in the next class.
+
+-- (4) Which causes of death are included in this table? List all of the diseases or causes in alphabetical order.
+
+sqlite> SELECT DISTINCT Code_CauseName
+   ...> FROM deaths
+   ...> ORDER BY Code_CauseName;
+"Accidents (unintentional injuries) (V01-X59,Y85-Y86)"
+"Alzheimer's disease (G30)"
+"Assault (homicide) (*U01-*U02,X85-Y09,Y87.1)"
+"Cerebrovascular diseases (I60-I69)"
+"Chronic liver disease and cirrhosis (K70,K73-K74)"
+"Chronic lower respiratory diseases (J40-J47)"
+"Diabetes mellitus (E10-E14)"
+"Diseases of heart (I00-I09,I11,I13,I20-I51)"
+"Essential hypertension and hypertensive renal disease (I10,I12,I15)"
+"Influenza and pneumonia (J09-J18)"
+"Intentional self-harm (suicide) (*U03,X60-X84,Y87.0)"
+"Malignant neoplasms (C00-C97)"
+"Nephritis, nephrotic syndrome and nephrosis (N00-N07,N17-N19,N25-N27)"
+"Parkinson's disease (G20-G21)"
+"Pneumonitis due to solids and liquids (J69)"
+"Septicemia (A40-A41)"
+
+sqlite> SELECT DISTINCT CauseName
+   ...> FROM deaths
+   ...> ORDER BY CauseName;
+"Alzheimer's disease"
+CLRD
+Cancer
+"Chronic liver disease and cirrhosis"
+Diabetes
+"Diseases of Heart"
+"Essential hypertension and hypertensive renal disease"
+Homicide
+"Influenza and pneumonia"
+"Kidney Disease"
+"Parkinson's disease"
+"Pneumonitis due to solids and liquids"
+Septicemia
+Stroke
+Suicide
+"Unintentional Injuries"
+
+sqlite> .mode columns
+
+-- (5) What are the totals for each cause of death in this table?
+
+sqlite> SELECT CauseName,SUM(deaths)
+   ...> FROM deaths
+   ...> GROUP BY CauseName
+   ...> ORDER BY CauseName;
+   
+Alzheimer's disease  2514618    
+CLRD                 4560260    
+Cancer               19292996   
+Chronic liver disea  1043674    
+Diabetes             2472642    
+Diseases of Heart    21879846   
+Essential hypertens  841098.0   
+Homicide             590599.0   
+Influenza and pneum  1974864    
+Kidney Disease       1515868    
+Parkinson's disease  696518     
+Pneumonitis due to   589791.0   
+Septicemia           1188968    
+Stroke               4875996    
+Suicide              1209756    
+Unintentional Injur  4033020    
+
+-- (6) Are there data for all fifty states in the table? Are the District of Columbia (Washington DC) and Puerto Rico included? How do you know?
+
+sqlite> SELECT State
+   ...> FROM deaths
+   ...> WHERE State LIKE '%Puerto Rico%'
+   ...>   OR  State LIKE 'PR';
+
+sqlite> SELECT State
+   ...> FROM deaths
+   ...> WHERE State LIKE '%Puerto Rico%'
+   ...>   OR  State LIKE '%PR%';
+
+
+sqlite> .width 40
+sqlite> SELECT DISTINCT State
+   ...> FROM deaths
+   ...> ORDER BY State;
+Alabama                                 
+Alaska                                  
+Arizona                                 
+Arkansas                                
+California                              
+Colorado                                
+Connecticut                             
+Delaware                                
+District of Columbia                    
+Florida                                 
+Georgia                                 
+Hawaii                                  
+Idaho                                   
+Illinois                                
+Indiana                                 
+Iowa                                    
+Kansas                                  
+Kentucky                                
+Louisiana                               
+Maine                                   
+Maryland                                
+Massachusetts                           
+Michigan                                
+Minnesota                               
+Mississippi                             
+Missouri                                
+Montana                                 
+Nebraska                                
+Nevada                                  
+New Hampshire                           
+New Jersey                              
+New Mexico                              
+New York                                
+North Carolina                          
+North Dakota                            
+Ohio                                    
+Oklahoma                                
+Oregon                                  
+Pennsylvania                            
+Rhode Island                            
+South Carolina                          
+South Dakota                            
+Tennessee                               
+Texas                                   
+United States                           
+Utah                                    
+Vermont                                 
+Virginia                                
+Washington                              
+West Virginia                           
+Wisconsin                               
+Wyoming 
+
+-- It seems clear that Washington D.C. is counted but not Puerto Rico.
+-- But there are 52 records. How did that happen?
+
+sqlite> SELECT COUNT(DISTINCT State) FROM deaths;
+52                                      
+
+sqlite> SELECT State,SUM(Deaths)
+   ...> FROM deaths
+   ...> GROUP BY State
+   ...> ORDER BY State;
+Alabama                                   660066     
+Alaska                                    47068.0    
+Arizona                                   642025     
+Arkansas                                  409560     
+California                                3422459    
+Colorado                                  416259     
+Connecticut                               407040     
+Delaware                                  103576     
+District of Columbia                      69775      
+Florida                                   2397507    
+Georgia                                   941685     
+Hawaii                                    130014     
+Idaho                                     150113     
+Illinois                                  1460489    
+Indiana                                   798341     
+Iowa                                      395172     
+Kansas                                    339615     
+Kentucky                                  589778     
+Louisiana                                 584925     
+Maine                                     175881     
+Maryland                                  602306     
+Massachusetts                             738469     
+Michigan                                  1248155    
+Minnesota                                 513873     
+Mississippi                               416724     
+Missouri                                  794203     
+Montana                                   119101     
+Nebraska                                  208219     
+Nevada                                    265191     
+New Hampshire                             143345.0   
+New Jersey                                1003709    
+New Mexico                                211971     
+New York                                  2170019    
+North Carolina                            1063835    
+North Dakota                              84383.0    
+Ohio                                      1529552    
+Oklahoma                                  517330     
+Oregon                                    427676     
+Pennsylvania                              1785982    
+Rhode Island                              135197     
+South Carolina                            554196     
+South Dakota                              101654     
+Tennessee                                 828024     
+Texas                                     2270961    
+United States                             34640315   
+Utah                                      180740     
+Vermont                                   72883.0    
+Virginia                                  818381     
+Washington                                675757     
+West Virginia                             298251     
+Wisconsin                                 659289     
+Wyoming                                   59475.0    
+
+-- (7) Do you see any problems in the data so far?
+
+sqlite> SELECT State,SUM(Deaths)
+   ...> AS d
+   ...> FROM deaths
+   ...> GROUP BY State
+   ...> ORDER BY d DESC;
+United States                             34640315  
+California                                3422459   
+Florida                                   2397507   
+Texas                                     2270961   
+New York                                  2170019   
+Pennsylvania                              1785982   
+Ohio                                      1529552   
+Illinois                                  1460489   
+Michigan                                  1248155   
+North Carolina                            1063835   
+New Jersey                                1003709   
+Georgia                                   941685    
+Tennessee                                 828024    
+Virginia                                  818381    
+Indiana                                   798341    
+Missouri                                  794203    
+Massachusetts                             738469    
+Washington                                675757    
+Alabama                                   660066    
+Wisconsin                                 659289    
+Arizona                                   642025    
+Maryland                                  602306    
+Kentucky                                  589778    
+Louisiana                                 584925    
+South Carolina                            554196    
+Oklahoma                                  517330    
+Minnesota                                 513873    
+Oregon                                    427676    
+Mississippi                               416724    
+Colorado                                  416259    
+Arkansas                                  409560    
+Connecticut                               407040    
+Iowa                                      395172    
+Kansas                                    339615    
+West Virginia                             298251    
+Nevada                                    265191    
+New Mexico                                211971    
+Nebraska                                  208219    
+Utah                                      180740    
+Maine                                     175881    
+Idaho                                     150113    
+New Hampshire                             143345.0  
+Rhode Island                              135197    
+Hawaii                                    130014    
+Montana                                   119101    
+Delaware                                  103576    
+South Dakota                              101654    
+North Dakota                              84383.0   
+Vermont                                   72883.0   
+District of Columbia                      69775     
+Wyoming                                   59475.0   
+Alaska                                    47068.0   
+
+sqlite> SELECT State,Year,Deaths
+   ...> FROM deaths
+   ...> WHERE State = "United States";
+United States                             1999        44536     
+United States                             2000        49558     
+United States                             2001        53852     
+...
+United States                             2010        120859    
+United States                             2011        126438    
+United States                             2012        127792    
+United States                             2013        130557    
+United States                             2014        135928    
+United States                             2015        146571    
+
+-- We decided to delete the records for "United States" as these
+-- appear to be duplicated data.
+
+-- Had we not checked ... most of our remaining statistics would have been
+-- wrong by a considerable factor.
+
+-- First we used a SELECT query to determine how many records to remove:
+sqlite> SELECT COUNT(*)
+   ...> FROM deaths
+   ...> WHERE State = "United States";
+272                                     
+
+-- Since there are 16 distinct causes tracked and 17 years of data,
+-- 272 records sounds correct.
+
+sqlite> SELECT COUNT(DISTINCT CauseName) FROM deaths;
+16                                      
+sqlite> SELECT (272/16)
+   ...> ;
+17                                      
+
+-- There are currently this many records:
+sqlite> SELECT COUNT(*) FROM deaths;
+14144                                   
+
+-- so after deletion we should end up with (14144-272) records:
+sqlite> SELECT (14144-272);
+13872                                   
+
+-- We ran the DELETE query:
+sqlite> DELETE
+   ...> FROM deaths
+   ...> WHERE State = "United States";
+
+-- and checked to be sure we have the correct total, which we do:
+sqlite> SELECT COUNT(*) FROM deaths;
+13872                                   
+sqlite> 
+-- We will work on the remaining queries in the next class.

@@ -1,0 +1,626 @@
+-- CSCI-UA.60-1 
+-- MYSQL CLASS NOTES
+-- 11/7/2019
+
+-- We started with a review using an INNER JOIN 
+-- with a total of three tables.
+
+MariaDB [de123_database1]> SELECT p.ptg_title,a.artist_name,a.artist_origin,m.med_description 
+    -> FROM paintings p 
+    -> INNER JOIN artists a ON p.ptg_artist_name = a.artist_name 
+    -> INNER JOIN media   m ON p.ptg_medium      = m.med_medium 
+    -> ORDER BY p.ptg_title;
+
++---------------------------+-------------------------+---------------+--------------------------+
+| ptg_title                 | artist_name             | artist_origin | med_description          |
++---------------------------+-------------------------+---------------+--------------------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        | Pastel on paper          |
+| Evening, Honfleur         | Seurat, Georges         | France        | Oil on canvas            |
+| Foliage                   | Cezanne, Paul           | France        | Watercolor on paper      |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       | Oil on canvas            |
+| Guitar                    | Picasso, Pablo          | Spain         | Mixed Media              |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         | Oil on canvas            |
+| Last Supper               | da Vinci, Leonardo      | Italy         | Tempera fresco on a wall |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         | Oil on canvas            |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       | Oil on canvas            |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        | Conte crayon on paper    |
+| The Bather                | Cezanne, Paul           | France        | Oil on canvas            |
+| The Starry Night          | Van Gogh, Vincent       | Holland       | Oil on canvas            |
++---------------------------+-------------------------+---------------+--------------------------+
+12 rows in set (0.00 sec)
+
+-- Next we asked the question:
+-- Which artists, if any, are in the artist's table 
+-- for whom we do not have any paintings in the paintings table?
+
+-- We used a LEFT JOIN along with a WHERE clause
+-- to check for the value IS NULL in the paintings table (title) field.
+
+MariaDB [de123_database1]> SELECT a.artist_name
+    -> FROM artists a
+    -> LEFT JOIN paintings p ON a.artist_name = p.ptg_artist_name
+    -> WHERE p.ptg_title IS NULL
+    -> ORDER BY a.artist_name;
++---------------+
+| artist_name   |
++---------------+
+| Cassatt, Mary |
+| Wood, Grant   |
++---------------+
+2 rows in set (0.00 sec)
+
+-- in this case, we displayed both the artist name and the title of the painting ...
+-- which IS NULL as there is no painting on file for this artist.
+
+MariaDB [de123_database1]> SELECT a.artist_name,p.ptg_title
+    -> FROM artists a
+    -> LEFT JOIN paintings p ON a.artist_name=p.ptg_artist_name
+    -> WHERE ptg_title IS NULL
+    -> ORDER BY a.artist_name;
++---------------+-----------+
+| artist_name   | ptg_title |
++---------------+-----------+
+| Cassatt, Mary | NULL      |
+| Wood, Grant   | NULL      |
++---------------+-----------+
+2 rows in set (0.00 sec)
+
+-- Question in class:
+-- What happens if we use a LEFT JOIN and gather a list of all of the artists'
+-- names?
+-- Notice that the duplication of artist names; these are artists who have more than
+-- one painting in the related paintings table.
+
+MariaDB [de123_database1]> SELECT a.artist_name 
+    -> FROM artists a 
+    -> LEFT JOIN paintings p ON a.artist_name = p.ptg_artist_name 
+    -> ORDER BY a.artist_name;
+
++-------------------------+
+| artist_name             |
++-------------------------+
+| Cassatt, Mary           |
+| Cezanne, Paul           |
+| Cezanne, Paul           |
+| da Vinci, Leonardo      |
+| da Vinci, Leonardo      |
+| Degas, Hilaire-Germaine |
+| Picasso, Pablo          |
+| Picasso, Pablo          |
+| Rembrandt van Rijn      |
+| Seurat, Georges         |
+| Seurat, Georges         |
+| Van Gogh, Vincent       |
+| Vermeer, Johannes       |
+| Wood, Grant             |
++-------------------------+
+14 rows in set (0.00 sec)
+
+-- Here you can see why the artist names are duplicated in some cases:
+
+MariaDB [de123_database1]> SELECT a.artist_name,p.ptg_title FROM artists a LEFT JOIN paintings p ON a.artist_name=p.ptg_artist_name ORDER BY a.artist_name;
++-------------------------+---------------------------+
+| artist_name             | ptg_title                 |
++-------------------------+---------------------------+
+| Cassatt, Mary           | NULL                      |
+| Cezanne, Paul           | Foliage                   |
+| Cezanne, Paul           | The Bather                |
+| da Vinci, Leonardo      | La Jaconde [Mona Lisa]    |
+| da Vinci, Leonardo      | Last Supper               |
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Picasso, Pablo          | Guitar                    |
+| Picasso, Pablo          | Les Demoiselles d'Avignon |
+| Rembrandt van Rijn      | Self-Portrait             |
+| Seurat, Georges         | Evening, Honfleur         |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Van Gogh, Vincent       | The Starry Night          |
+| Vermeer, Johannes       | Girl with a Pearl Earring |
+| Wood, Grant             | NULL                      |
++-------------------------+---------------------------+
+14 rows in set (0.00 sec)
+
+-- Someone suggested that we use the keyword DISTINCT in order to see
+-- all of the artists in the artists table, whether they have a painting
+-- in the related paintings table or not.
+
+-- In this case, we did NOT ask for data in the paintings table.
+-- So we used DISTINCT in order to ensure that each artist is listed only once.
+
+MariaDB [de123_database1]> SELECT DISTINCT a.artist_name 
+    -> FROM artists a 
+    -> LEFT JOIN paintings p ON a.artist_name = p.ptg_artist_name 
+    -> ORDER BY a.artist_name;
+
++-------------------------+
+| artist_name             |
++-------------------------+
+| Cassatt, Mary           |
+| Cezanne, Paul           |
+| da Vinci, Leonardo      |
+| Degas, Hilaire-Germaine |
+| Picasso, Pablo          |
+| Rembrandt van Rijn      |
+| Seurat, Georges         |
+| Van Gogh, Vincent       |
+| Vermeer, Johannes       |
+| Wood, Grant             |
++-------------------------+
+10 rows in set (0.00 sec)
+
+-- The query above - a LEFT JOIN using DISTINCT without
+-- displaying any of the data from the related table -
+-- ... is the same as a listing from the artist's table:
+
+MariaDB [de123_database1]> SELECT artist_name
+    -> FROM artists
+    -> ORDER BY artist_name;
++-------------------------+
+| artist_name             |
++-------------------------+
+| Cassatt, Mary           |
+| Cezanne, Paul           |
+| da Vinci, Leonardo      |
+| Degas, Hilaire-Germaine |
+| Picasso, Pablo          |
+| Rembrandt van Rijn      |
+| Seurat, Georges         |
+| Van Gogh, Vincent       |
+| Vermeer, Johannes       |
+| Wood, Grant             |
++-------------------------+
+10 rows in set (0.00 sec)
+
+-- The question came up in class, how do these queries this differ from an INNER JOIN?
+-- Note that with an INNER JOIN we only see artists who have a "match" in the 
+-- paintings table so we no longer see the artists MARY CASSATT and GRANT WOOD as we do not 
+-- have their works in our collection.
+
+MariaDB [de123_database1]> SELECT a.artist_name,p.ptg_title 
+    -> FROM paintings p 
+    -> INNER JOIN artists a ON p.ptg_artist_name = a.artist_name 
+    -> ORDER BY a.artist_name;
++-------------------------+---------------------------+
+| artist_name             | ptg_title                 |
++-------------------------+---------------------------+
+| Cezanne, Paul           | Foliage                   |
+| Cezanne, Paul           | The Bather                |
+| da Vinci, Leonardo      | La Jaconde [Mona Lisa]    |
+| da Vinci, Leonardo      | Last Supper               |
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Picasso, Pablo          | Guitar                    |
+| Picasso, Pablo          | Les Demoiselles d'Avignon |
+| Rembrandt van Rijn      | Self-Portrait             |
+| Seurat, Georges         | Evening, Honfleur         |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Van Gogh, Vincent       | The Starry Night          |
+| Vermeer, Johannes       | Girl with a Pearl Earring |
++-------------------------+---------------------------+
+12 rows in set (0.00 sec)
+
+-- Another question came up in class as to whether we could use
+-- IS NOT NULL in a similar JOIN query:
+
+-- The result is the same as an INNER JOIN.
+
+MariaDB [de123_database1]> SELECT a.artist_name,p.ptg_title 
+    -> FROM paintings p 
+    -> LEFT JOIN artists a ON p.ptg_artist_name = a.artist_name 
+    -> WHERE p.ptg_title IS NOT NULL 
+    -> ORDER BY a.artist_name;
++-------------------------+---------------------------+
+| artist_name             | ptg_title                 |
++-------------------------+---------------------------+
+| Cezanne, Paul           | The Bather                |
+| Cezanne, Paul           | Foliage                   |
+| da Vinci, Leonardo      | La Jaconde [Mona Lisa]    |
+| da Vinci, Leonardo      | Last Supper               |
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Picasso, Pablo          | Guitar                    |
+| Picasso, Pablo          | Les Demoiselles d'Avignon |
+| Rembrandt van Rijn      | Self-Portrait             |
+| Seurat, Georges         | Evening, Honfleur         |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Van Gogh, Vincent       | The Starry Night          |
+| Vermeer, Johannes       | Girl with a Pearl Earring |
++-------------------------+---------------------------+
+12 rows in set (0.00 sec)
+
+-- Another question came up in class:
+-- What happens if we don't specify a JOIN 
+-- or a relationship using a WHERE clause at all?
+
+-- Here is the result in which each record is paired
+-- with every other record.
+
+-- This is called a CROSS JOIN.
+-- It can also be referred to as a CARTESIAN PRODUCT.
+
+-- We discussed cases where this JOIN could be useful.
+
+MariaDB [de123_database1]> SELECT a.artist_name,p.ptg_title
+    -> FROM artists a, paintings p
+    -> ORDER BY a.artist_name,p.ptg_title;
++-------------------------+---------------------------+
+| artist_name             | ptg_title                 |
++-------------------------+---------------------------+
+| Cassatt, Mary           | At the Milliners          |
+| Cassatt, Mary           | Evening, Honfleur         |
+| Cassatt, Mary           | Foliage                   |
+| Cassatt, Mary           | Girl with a Pearl Earring |
+| Cassatt, Mary           | Guitar                    |
+| Cassatt, Mary           | La Jaconde [Mona Lisa]    |
+| Cassatt, Mary           | Last Supper               |
+| Cassatt, Mary           | Les Demoiselles d'Avignon |
+| Cassatt, Mary           | Self-Portrait             |
+| Cassatt, Mary           | Stone Breakers, Le Raincy |
+| Cassatt, Mary           | The Bather                |
+| Cassatt, Mary           | The Starry Night          |
+| Cezanne, Paul           | At the Milliners          |
+| Cezanne, Paul           | Evening, Honfleur         |
+| Cezanne, Paul           | Foliage                   |
+| Cezanne, Paul           | Girl with a Pearl Earring |
+| Cezanne, Paul           | Guitar                    |
+| Cezanne, Paul           | La Jaconde [Mona Lisa]    |
+| Cezanne, Paul           | Last Supper               |
+| Cezanne, Paul           | Les Demoiselles d'Avignon |
+| Cezanne, Paul           | Self-Portrait             |
+| Cezanne, Paul           | Stone Breakers, Le Raincy |
+| Cezanne, Paul           | The Bather                |
+| Cezanne, Paul           | The Starry Night          |
+| da Vinci, Leonardo      | At the Milliners          |
+| da Vinci, Leonardo      | Evening, Honfleur         |
+| da Vinci, Leonardo      | Foliage                   |
+| da Vinci, Leonardo      | Girl with a Pearl Earring |
+| da Vinci, Leonardo      | Guitar                    |
+| da Vinci, Leonardo      | La Jaconde [Mona Lisa]    |
+| da Vinci, Leonardo      | Last Supper               |
+| da Vinci, Leonardo      | Les Demoiselles d'Avignon |
+| da Vinci, Leonardo      | Self-Portrait             |
+| da Vinci, Leonardo      | Stone Breakers, Le Raincy |
+| da Vinci, Leonardo      | The Bather                |
+| da Vinci, Leonardo      | The Starry Night          |
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Degas, Hilaire-Germaine | Evening, Honfleur         |
+| Degas, Hilaire-Germaine | Foliage                   |
+| Degas, Hilaire-Germaine | Girl with a Pearl Earring |
+| Degas, Hilaire-Germaine | Guitar                    |
+| Degas, Hilaire-Germaine | La Jaconde [Mona Lisa]    |
+| Degas, Hilaire-Germaine | Last Supper               |
+| Degas, Hilaire-Germaine | Les Demoiselles d'Avignon |
+| Degas, Hilaire-Germaine | Self-Portrait             |
+| Degas, Hilaire-Germaine | Stone Breakers, Le Raincy |
+| Degas, Hilaire-Germaine | The Bather                |
+| Degas, Hilaire-Germaine | The Starry Night          |
+| Picasso, Pablo          | At the Milliners          |
+| Picasso, Pablo          | Evening, Honfleur         |
+| Picasso, Pablo          | Foliage                   |
+| Picasso, Pablo          | Girl with a Pearl Earring |
+| Picasso, Pablo          | Guitar                    |
+| Picasso, Pablo          | La Jaconde [Mona Lisa]    |
+| Picasso, Pablo          | Last Supper               |
+| Picasso, Pablo          | Les Demoiselles d'Avignon |
+| Picasso, Pablo          | Self-Portrait             |
+| Picasso, Pablo          | Stone Breakers, Le Raincy |
+| Picasso, Pablo          | The Bather                |
+| Picasso, Pablo          | The Starry Night          |
+| Rembrandt van Rijn      | At the Milliners          |
+| Rembrandt van Rijn      | Evening, Honfleur         |
+| Rembrandt van Rijn      | Foliage                   |
+| Rembrandt van Rijn      | Girl with a Pearl Earring |
+| Rembrandt van Rijn      | Guitar                    |
+| Rembrandt van Rijn      | La Jaconde [Mona Lisa]    |
+| Rembrandt van Rijn      | Last Supper               |
+| Rembrandt van Rijn      | Les Demoiselles d'Avignon |
+| Rembrandt van Rijn      | Self-Portrait             |
+| Rembrandt van Rijn      | Stone Breakers, Le Raincy |
+| Rembrandt van Rijn      | The Bather                |
+| Rembrandt van Rijn      | The Starry Night          |
+| Seurat, Georges         | At the Milliners          |
+| Seurat, Georges         | Evening, Honfleur         |
+| Seurat, Georges         | Foliage                   |
+| Seurat, Georges         | Girl with a Pearl Earring |
+| Seurat, Georges         | Guitar                    |
+| Seurat, Georges         | La Jaconde [Mona Lisa]    |
+| Seurat, Georges         | Last Supper               |
+| Seurat, Georges         | Les Demoiselles d'Avignon |
+| Seurat, Georges         | Self-Portrait             |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Seurat, Georges         | The Bather                |
+| Seurat, Georges         | The Starry Night          |
+| Van Gogh, Vincent       | At the Milliners          |
+| Van Gogh, Vincent       | Evening, Honfleur         |
+| Van Gogh, Vincent       | Foliage                   |
+| Van Gogh, Vincent       | Girl with a Pearl Earring |
+| Van Gogh, Vincent       | Guitar                    |
+| Van Gogh, Vincent       | La Jaconde [Mona Lisa]    |
+| Van Gogh, Vincent       | Last Supper               |
+| Van Gogh, Vincent       | Les Demoiselles d'Avignon |
+| Van Gogh, Vincent       | Self-Portrait             |
+| Van Gogh, Vincent       | Stone Breakers, Le Raincy |
+| Van Gogh, Vincent       | The Bather                |
+| Van Gogh, Vincent       | The Starry Night          |
+| Vermeer, Johannes       | At the Milliners          |
+| Vermeer, Johannes       | Evening, Honfleur         |
+| Vermeer, Johannes       | Foliage                   |
+| Vermeer, Johannes       | Girl with a Pearl Earring |
+| Vermeer, Johannes       | Guitar                    |
+| Vermeer, Johannes       | La Jaconde [Mona Lisa]    |
+| Vermeer, Johannes       | Last Supper               |
+| Vermeer, Johannes       | Les Demoiselles d'Avignon |
+| Vermeer, Johannes       | Self-Portrait             |
+| Vermeer, Johannes       | Stone Breakers, Le Raincy |
+| Vermeer, Johannes       | The Bather                |
+| Vermeer, Johannes       | The Starry Night          |
+| Wood, Grant             | At the Milliners          |
+| Wood, Grant             | Evening, Honfleur         |
+| Wood, Grant             | Foliage                   |
+| Wood, Grant             | Girl with a Pearl Earring |
+| Wood, Grant             | Guitar                    |
+| Wood, Grant             | La Jaconde [Mona Lisa]    |
+| Wood, Grant             | Last Supper               |
+| Wood, Grant             | Les Demoiselles d'Avignon |
+| Wood, Grant             | Self-Portrait             |
+| Wood, Grant             | Stone Breakers, Le Raincy |
+| Wood, Grant             | The Bather                |
+| Wood, Grant             | The Starry Night          |
++-------------------------+---------------------------+
+120 rows in set (0.00 sec)
+
+-- We see that there are 120 rows in the result.
+-- Given that there are 12 recors in the paintings table
+-- and 10 records in the artists table,
+-- it is clear that the above result set is from the
+-- multiplication of the two.
+
+MariaDB [de123_database1]> SELECT COUNT(*) FROM paintings;
++----------+
+| COUNT(*) |
++----------+
+|       12 |
++----------+
+1 row in set (0.00 sec)
+
+MariaDB [de123_database1]> SELECT COUNT(*) FROM artists;
++----------+
+| COUNT(*) |
++----------+
+|       10 |
++----------+
+1 row in set (0.01 sec)
+
+-- Then we turned our attention to sub-queries.
+-- For example, what if we want to see only paintings that are valued 
+-- more than the average value?
+
+-- In such a case, it would be best to calculate the average
+-- at the same time as the rest of the query so that the result
+-- is consistent (as the average will likely change whenever the table
+-- gets updated.)
+
+-- Here is a query to find the average value in this collection:
+
+MariaDB [de123_database1]> SELECT AVG(ptg_appraisal_amount) 
+    -> FROM paintings;
++---------------------------+
+| AVG(ptg_appraisal_amount) |
++---------------------------+
+|           10800000.000000 |
++---------------------------+
+1 row in set (0.00 sec)
+
+-- Note that this query can now serve as a SUB-QUERY (or NESTED QUERY)
+-- in the following query.
+
+-- Sub-queries must be inside of parentheses.
+
+MariaDB [de123_database1]> SELECT ptg_title,ptg_appraisal_amount 
+    -> FROM paintings 
+    -> WHERE ptg_appraisal_amount >    
+    ->     (SELECT AVG(ptg_appraisal_amount) FROM paintings) 
+    -> ORDER BY ptg_title;
++---------------------------+----------------------+
+| ptg_title                 | ptg_appraisal_amount |
++---------------------------+----------------------+
+| Girl with a Pearl Earring |          25000000.00 |
+| Last Supper               |          30000000.00 |
+| Les Demoiselles d'Avignon |          13000000.00 |
+| The Starry Night          |          38000000.00 |
++---------------------------+----------------------+
+4 rows in set (0.01 sec)
+
+-- Another common type of sub-query uses IN to check for values
+-- in a result set.
+
+-- The following query simulates an INNER JOIN
+-- without actually doing a join:
+
+MariaDB [de123_database1]> SELECT ptg_artist_name,ptg_title
+    -> FROM paintings
+    -> WHERE ptg_artist_name IN
+    ->   (SELECT artist_name FROM artists WHERE artist_origin = 'France')
+    -> ORDER BY ptg_title;
++-------------------------+---------------------------+
+| ptg_artist_name         | ptg_title                 |
++-------------------------+---------------------------+
+| Degas, Hilaire-Germaine | At the Milliners          |
+| Seurat, Georges         | Evening, Honfleur         |
+| Cezanne, Paul           | Foliage                   |
+| Seurat, Georges         | Stone Breakers, Le Raincy |
+| Cezanne, Paul           | The Bather                |
++-------------------------+---------------------------+
+5 rows in set (0.01 sec)
+
+-- Next we looked at the query that starts 
+-- CREATE TABLE <table name> AS ...
+-- so that a SELECT query results end up in a new table for 
+-- further use.
+
+-- We discussed advantages and disadvantages of this practice
+-- in class.
+
+MariaDB [de123_database1]> CREATE TABLE tmp1 AS SELECT * 
+    -> FROM artists;
+Query OK, 10 rows affected (0.01 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+MariaDB [de123_database1]> DESC tmp1;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| artist_name     | varchar(32) | NO   |     | NULL    |       |
+| artist_origin   | varchar(15) | YES  |     | NULL    |       |
+| artist_yearBorn | int(4)      | YES  |     | 0       |       |
+| artist_yearDied | int(4)      | YES  |     | 0       |       |
++-----------------+-------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+MariaDB [de123_database1]> SELECT * FROM tmp1;
++-------------------------+---------------+-----------------+-----------------+
+| artist_name             | artist_origin | artist_yearBorn | artist_yearDied |
++-------------------------+---------------+-----------------+-----------------+
+| Cassatt, Mary           | USA           |            1844 |            1926 |
+| Cezanne, Paul           | France        |            1839 |            1906 |
+| da Vinci, Leonardo      | Italy         |            1452 |            1519 |
+| Degas, Hilaire-Germaine | France        |            1834 |            1917 |
+| Picasso, Pablo          | Spain         |            1881 |            1973 |
+| Rembrandt van Rijn      | Holland       |            1606 |            1669 |
+| Seurat, Georges         | France        |            1859 |            1891 |
+| Van Gogh, Vincent       | Holland       |            1853 |            1890 |
+| Vermeer, Johannes       | Holland       |            1632 |            1675 |
+| Wood, Grant             | USA           |            1891 |            1942 |
++-------------------------+---------------+-----------------+-----------------+
+10 rows in set (0.00 sec)
+
+-- We used DROP to remove the table as it is not a good practice to keep
+-- duplicated data in a database. We discussed the usage of CREATE TABLE x AS ...
+-- in class.
+
+MariaDB [de123_database1]> DROP TABLE tmp1;
+Query OK, 0 rows affected (0.01 sec)
+
+-- Note that you can create a temporary table from any SELECT query;
+-- this result has only one record.
+
+MariaDB [de123_database1]> CREATE TABLE tmp1 AS 
+    -> SELECT * FROM artists 
+    -> WHERE artist_origin='Italy';
+
+Query OK, 1 row affected (0.00 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+MariaDB [de123_database1]> SELECT * FROM tmp1;
++--------------------+---------------+-----------------+-----------------+
+| artist_name        | artist_origin | artist_yearBorn | artist_yearDied |
++--------------------+---------------+-----------------+-----------------+
+| da Vinci, Leonardo | Italy         |            1452 |            1519 |
++--------------------+---------------+-----------------+-----------------+
+1 row in set (0.00 sec)
+
+-- Next we addressed the UNION query.
+-- There are three small tables for this demonstration.
+-- Note that the field names (column headers) are consistent among these tables.
+
+MariaDB [de123_database1]> SELECT * FROM easternStates;
++--------------+-------------+
+| state_abbrev | state_name  |
++--------------+-------------+
+| NY           | New York    |
+| CT           | Connecticut |
++--------------+-------------+
+2 rows in set (0.00 sec)
+
+MariaDB [de123_database1]> SELECT * FROM westernStates;
++--------------+------------+
+| state_abbrev | state_name |
++--------------+------------+
+| WA           | Washington |
+| CA           | California |
+| OR           | Oregon     |
++--------------+------------+
+3 rows in set (0.00 sec)
+
+MariaDB [de123_database1]> SELECT * FROM southernStates;
++--------------+------------+
+| state_abbrev | state_name |
++--------------+------------+
+| FL           | Florida    |
+| GA           | Georgia    |
++--------------+------------+
+2 rows in set (0.00 sec)
+
+-- We can now build a result set that includes data from all
+-- three tables sorted by state name.
+
+-- We discussed scenarios in class when you might want to use
+-- a UNION query.
+
+MariaDB [de123_database1]> SELECT * FROM easternStates
+    -> UNION
+    -> SELECT * FROM westernStates
+    -> UNION
+    -> SELECT * from southernStates
+    -> ORDER BY state_name;
++--------------+-------------+
+| state_abbrev | state_name  |
++--------------+-------------+
+| CA           | California  |
+| CT           | Connecticut |
+| FL           | Florida     |
+| GA           | Georgia     |
+| NY           | New York    |
+| OR           | Oregon      |
+| WA           | Washington  |
++--------------+-------------+
+7 rows in set (0.00 sec)
+
+-- Last but not least, we discussed an approach to writing a SELF JOIN query.
+
+-- Here is the table that we used for this purpose:
+
+MariaDB [de123_database1]> DESC recursive;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| ID         | char(5)     | NO   |     | NULL    |       |
+| last_name  | varchar(20) | YES  |     | NULL    |       |
+| first_name | varchar(15) | YES  |     | NULL    |       |
+| street     | varchar(50) | YES  |     | NULL    |       |
+| city       | varchar(20) | YES  |     | NULL    |       |
+| state      | char(2)     | YES  |     | NULL    |       |
+| zip        | char(5)     | YES  |     | NULL    |       |
+| spouse     | char(5)     | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+8 rows in set (0.00 sec)
+
+-- and the data in this table:
+
+MariaDB [de123_database1]> SELECT ID,last_name,first_name,spouse
+    -> FROM recursive
+    -> ORDER BY last_name,first_name;
++-------+------------+------------+--------+
+| ID    | last_name  | first_name | spouse |
++-------+------------+------------+--------+
+| 12348 | Adams      | Abigail    | 12347  |
+| 12347 | Adams      | James      | 12348  |
+| 12345 | Washington | George     | 12346  |
+| 12346 | Washington | Martha     | 12345  |
++-------+------------+------------+--------+
+4 rows in set (0.00 sec)
+
+-- In this select query, we matched up eaxch person with his or her spouse,
+-- using the same table for reference:
+
+MariaDB [de123_database1]> SELECT a.ID,a.last_name,a.first_name,a.spouse,b.ID,b.last_name,b.first_name
+    -> FROM recursive a, recursive b
+    -> WHERE a.spouse = b.ID
+    -> ORDER BY a.last_name,a.first_name;
++-------+------------+------------+--------+-------+------------+------------+
+| ID    | last_name  | first_name | spouse | ID    | last_name  | first_name |
++-------+------------+------------+--------+-------+------------+------------+
+| 12348 | Adams      | Abigail    | 12347  | 12347 | Adams      | James      |
+| 12347 | Adams      | James      | 12348  | 12348 | Adams      | Abigail    |
+| 12345 | Washington | George     | 12346  | 12346 | Washington | Martha     |
+| 12346 | Washington | Martha     | 12345  | 12345 | Washington | George     |
++-------+------------+------------+--------+-------+------------+------------+
+4 rows in set (0.00 sec)
+

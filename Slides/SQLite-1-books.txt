@@ -1,0 +1,324 @@
+-- CSCI-UA.60-1 
+-- 9/17/2019
+-- SQLite Class #1
+
+-- To open SQLite in Terminal or DOS or at the command line on i6:
+
+(base) 10-16-121-102:SQLite deena$ sqlite3 
+SQLite version 3.29.0 2019-07-10 17:32:03
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+
+-- and to close SQLite@!
+sqlite> .exit
+
+-- In this next line, we opened SQLite with a database in order
+-- to make use of persistent storage.
+-- Note that the file has a suffix of .db
+
+-- The two suffixes you will see are:
+-- .db for SQLite database files
+-- .sql for SQL scripts (SQLite and other 'flavors' of SQL)
+
+(base) 10-16-121-102:SQLite deena$ sqlite3 books.db
+SQLite version 3.29.0 2019-07-10 17:32:03
+Enter ".help" for usage hints.
+
+-- We can create a table from within SQLite.
+
+sqlite> CREATE TABLE a (
+   ...> name text);
+
+-- Note the 'dot command' to see which tables are in our database.
+-- In this case, we have a table called 'a' which we created above.
+sqlite> .tables
+a
+
+-- We can check on the table structure of table 'a'
+-- by using the '.schema' command.
+sqlite> .schema a
+CREATE TABLE a (
+name text);
+
+-- We decided to remove the table 'a' as we are not using it.
+-- Use a DROP query to remove a table.
+sqlite> .tables
+a
+sqlite> DROP TABLE a;
+
+-- Now when we check which tables are in this database, 
+-- there are none avilable.
+sqlite> .tables
+
+-- Instead, the standard way to work in SQL for creating and populating
+-- tables (and other tasks) is to write an SQL Script.
+
+-- We call it a 'script' and not a program because it is really
+-- a file containing a series of SQL queries in the sequence in which you
+-- would like to have them executed.
+
+-- After running the 'books' script, which is available on your class notes page
+-- on the course website, you will see that we have one table called 'books'.
+
+sqlite> .read books_script_sqlite.sql
+sqlite> .tables
+books
+
+-- The structure of the books table is what we would expect to see,
+-- as we have documented this in our SQL script.
+sqlite> .schema books
+CREATE TABLE books (
+  title text NOT NULL,
+  author text,
+  year_written integer,
+  edition text,
+  price real,
+  purchaseDate text,
+  PRIMARY KEY(title)
+  );
+
+-- We examined the script in class and reviewed the contents of the queries.
+
+-- Back in SQLite, we used DROP to remove the table.
+sqlite> DROP TABLE books;
+sqlite> .tables
+
+-- But no harm is done as we can simply set it up again 
+-- by re-running the script.
+sqlite> .read books_script_sqlite.sql
+sqlite> .tables
+books
+
+-- Next we talked about SELECTION, PROJECTION and JOIN.
+-- SELECTION refers to the WHERE clause in our queries in which
+-- we determine which record(s) or row(s) to include in our result.
+
+-- PROJECTION refers to the SELECT clause in our queries 
+-- (Yes - I know - this is confusing!) as to which field(s)
+-- or column(s) to include in our result set.
+
+-- We will address the differnt types of JOINs in our unit
+-- on server-side databases.
+
+-- Note the default use of the '|' character to separate fields on each row.
+sqlite> SELECT *
+   ...> FROM books;
+Sense and Sensibility|Austen, Jane|1814|Penguin|18.2|2011-12-01
+War and Peace|Tolstoy, Leo|1865|Penguin|12.7|2009-03-31
+Anna Karenina|Tolstoy, Leo|1875|Penguin|13.5|2010-02-25
+Mrs. Dalloway|Woolf, Virginia|1925|Harcourt Brace|25.0|2014-01-10
+The Hours|Cunnningham, Michael|1999|Harcourt Brace|12.34|2012-11-08
+Huckleberry Finn|Twain, Mark|1865|Penguin|5.76|2012-02-29
+Bleak House|Dickens, Charles|1870|Random House|5.75|2009-10-31
+Tom Sawyer|Twain, Mark|1862|Random House|25.0|2009-09-20
+A Room of One's Own|Woolf, Virginia|1922|Penguin|29.0|2013-11-30
+Harry Potter|Rowling, J.K.|2000|Harcourt Brace|19.95|2014-01-01
+One Hundred Years of Solitude|Marquez|1967|Harper Perennial|14.0|2013-03-01
+Hamlet, Prince of Denmark|Shakespeare|1603|Signet Classics|7.95|2013-09-24
+Lord of the Rings|Tolkien, J.R.|1937|Penguin|27.45|2013-09-25
+Der Steppenwolf|Hesse, Herman|1928|Fischer Verlag|95.0|2015-02-03
+The Great Gatsby|Fitzgerald, F. Scott|1925|Penguin|12.0|2015-02-11
+Don Quixote|Cervantes|1605|Penguin|25.0|2015-07-21
+
+-- In order to make this easier to read, I have switched to
+-- columns.
+sqlite> .mode columns
+sqlite> SELECT * 
+   ...> FROM books;
+Sense and Sensibility  Austen, Jane  1814          Penguin     18.2        2011-12-01  
+War and Peace          Tolstoy, Leo  1865          Penguin     12.7        2009-03-31  
+Anna Karenina          Tolstoy, Leo  1875          Penguin     13.5        2010-02-25  
+Mrs. Dalloway          Woolf, Virgi  1925          Harcourt B  25.0        2014-01-10  
+The Hours              Cunnningham,  1999          Harcourt B  12.34       2012-11-08  
+Huckleberry Finn       Twain, Mark   1865          Penguin     5.76        2012-02-29  
+Bleak House            Dickens, Cha  1870          Random Hou  5.75        2009-10-31  
+Tom Sawyer             Twain, Mark   1862          Random Hou  25.0        2009-09-20  
+A Room of One's Own    Woolf, Virgi  1922          Penguin     29.0        2013-11-30  
+Harry Potter           Rowling, J.K  2000          Harcourt B  19.95       2014-01-01  
+One Hundred Years of   Marquez       1967          Harper Per  14.0        2013-03-01  
+Hamlet, Prince of Den  Shakespeare   1603          Signet Cla  7.95        2013-09-24  
+Lord of the Rings      Tolkien, J.R  1937          Penguin     27.45       2013-09-25  
+Der Steppenwolf        Hesse, Herma  1928          Fischer Ve  95.0        2015-02-03  
+The Great Gatsby       Fitzgerald,   1925          Penguin     12.0        2015-02-11  
+Don Quixote            Cervantes     1605          Penguin     25.0        2015-07-21  
+
+-- To make this even easier to read, I used the .width command to set up columns
+-- wide enough for the data at hand. The text wraps because it does not fit at this 
+-- font size to one row for each record.
+sqlite> .width 40 40 10 30 10 12
+sqlite> SELECT * 
+   ...> FROM books;
+Sense and Sensibility                     Austen, Jane                              1814        Penguin                         18.2        2011-12-01  
+War and Peace                             Tolstoy, Leo                              1865        Penguin                         12.7        2009-03-31  
+Anna Karenina                             Tolstoy, Leo                              1875        Penguin                         13.5        2010-02-25  
+Mrs. Dalloway                             Woolf, Virginia                           1925        Harcourt Brace                  25.0        2014-01-10  
+The Hours                                 Cunnningham, Michael                      1999        Harcourt Brace                  12.34       2012-11-08  
+Huckleberry Finn                          Twain, Mark                               1865        Penguin                         5.76        2012-02-29  
+Bleak House                               Dickens, Charles                          1870        Random House                    5.75        2009-10-31  
+Tom Sawyer                                Twain, Mark                               1862        Random House                    25.0        2009-09-20  
+A Room of One's Own                       Woolf, Virginia                           1922        Penguin                         29.0        2013-11-30  
+Harry Potter                              Rowling, J.K.                             2000        Harcourt Brace                  19.95       2014-01-01  
+One Hundred Years of Solitude             Marquez                                   1967        Harper Perennial                14.0        2013-03-01  
+Hamlet, Prince of Denmark                 Shakespeare                               1603        Signet Classics                 7.95        2013-09-24  
+Lord of the Rings                         Tolkien, J.R.                             1937        Penguin                         27.45       2013-09-25  
+Der Steppenwolf                           Hesse, Herman                             1928        Fischer Verlag                  95.0        2015-02-03  
+The Great Gatsby                          Fitzgerald, F. Scott                      1925        Penguin                         12.0        2015-02-11  
+Don Quixote                               Cervantes                                 1605        Penguin                         25.0        2015-07-21  
+
+-- Here we introduced PROJECTION to display only the title and author:
+sqlite> SELECT title,author
+   ...> FROM books;
+Sense and Sensibility                     Austen, Jane                            
+War and Peace                             Tolstoy, Leo                            
+Anna Karenina                             Tolstoy, Leo                            
+Mrs. Dalloway                             Woolf, Virginia                         
+The Hours                                 Cunnningham, Michael                    
+Huckleberry Finn                          Twain, Mark                             
+Bleak House                               Dickens, Charles                        
+Tom Sawyer                                Twain, Mark                             
+A Room of One's Own                       Woolf, Virginia                         
+Harry Potter                              Rowling, J.K.                           
+One Hundred Years of Solitude             Marquez                                 
+Hamlet, Prince of Denmark                 Shakespeare                             
+Lord of the Rings                         Tolkien, J.R.                           
+Der Steppenwolf                           Hesse, Herman                           
+The Great Gatsby                          Fitzgerald, F. Scott                    
+Don Quixote                               Cervantes                               
+
+-- and again, but this time in alphabetical order by title:
+sqlite> SELECT title,author
+   ...> FROM books
+   ...> ORDER BY title;
+A Room of One's Own                       Woolf, Virginia                         
+Anna Karenina                             Tolstoy, Leo                            
+Bleak House                               Dickens, Charles                        
+Der Steppenwolf                           Hesse, Herman                           
+Don Quixote                               Cervantes                               
+Hamlet, Prince of Denmark                 Shakespeare                             
+Harry Potter                              Rowling, J.K.                           
+Huckleberry Finn                          Twain, Mark                             
+Lord of the Rings                         Tolkien, J.R.                           
+Mrs. Dalloway                             Woolf, Virginia                         
+One Hundred Years of Solitude             Marquez                                 
+Sense and Sensibility                     Austen, Jane                            
+The Great Gatsby                          Fitzgerald, F. Scott                    
+The Hours                                 Cunnningham, Michael                    
+Tom Sawyer                                Twain, Mark                             
+War and Peace                             Tolstoy, Leo                            
+sqlite> .width 30 30
+
+-- In this case the books are in alphabetical order by author ...
+-- and then by title within books for each author.
+-- For example, "Anna Karenina" comes before "War and Peace" for Tolstoy.
+sqlite> SELECT title,author
+   ...> FROM books
+   ...> ORDER BY author,title;
+Sense and Sensibility           Austen, Jane                  
+Don Quixote                     Cervantes                     
+The Hours                       Cunnningham, Michael          
+Bleak House                     Dickens, Charles              
+The Great Gatsby                Fitzgerald, F. Scott          
+Der Steppenwolf                 Hesse, Herman                 
+One Hundred Years of Solitude   Marquez                       
+Harry Potter                    Rowling, J.K.                 
+Hamlet, Prince of Denmark       Shakespeare                   
+Lord of the Rings               Tolkien, J.R.                 
+Anna Karenina                   Tolstoy, Leo                  
+War and Peace                   Tolstoy, Leo                  
+Huckleberry Finn                Twain, Mark                   
+Tom Sawyer                      Twain, Mark                   
+A Room of One's Own             Woolf, Virginia               
+Mrs. Dalloway                   Woolf, Virginia               
+
+-- Here we are PROJECTING only the columns for title, author and price.
+-- We are displaying them in order by price, with the cheapest books first.
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price;
+Bleak House                     Dickens, Charles                5.75      
+Huckleberry Finn                Twain, Mark                     5.76      
+Hamlet, Prince of Denmark       Shakespeare                     7.95      
+The Great Gatsby                Fitzgerald, F. Scott            12.0      
+The Hours                       Cunnningham, Michael            12.34     
+War and Peace                   Tolstoy, Leo                    12.7      
+Anna Karenina                   Tolstoy, Leo                    13.5      
+One Hundred Years of Solitude   Marquez                         14.0      
+Sense and Sensibility           Austen, Jane                    18.2      
+Harry Potter                    Rowling, J.K.                   19.95     
+Mrs. Dalloway                   Woolf, Virginia                 25.0      
+Tom Sawyer                      Twain, Mark                     25.0      
+Don Quixote                     Cervantes                       25.0      
+Lord of the Rings               Tolkien, J.R.                   27.45     
+A Room of One's Own             Woolf, Virginia                 29.0      
+Der Steppenwolf                 Hesse, Herman                   95.0      
+
+-- But if we specific the ORDER is in DESCENDING order (as DESC),
+-- we see the most expensive books first.
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price DESC;
+Der Steppenwolf                 Hesse, Herman                   95.0      
+A Room of One's Own             Woolf, Virginia                 29.0      
+Lord of the Rings               Tolkien, J.R.                   27.45     
+Mrs. Dalloway                   Woolf, Virginia                 25.0      
+Tom Sawyer                      Twain, Mark                     25.0      
+Don Quixote                     Cervantes                       25.0      
+Harry Potter                    Rowling, J.K.                   19.95     
+Sense and Sensibility           Austen, Jane                    18.2      
+One Hundred Years of Solitude   Marquez                         14.0      
+Anna Karenina                   Tolstoy, Leo                    13.5      
+War and Peace                   Tolstoy, Leo                    12.7      
+The Hours                       Cunnningham, Michael            12.34     
+The Great Gatsby                Fitzgerald, F. Scott            12.0      
+Hamlet, Prince of Denmark       Shakespeare                     7.95      
+Huckleberry Finn                Twain, Mark                     5.76      
+Bleak House                     Dickens, Charles                5.75      
+
+-- Next we introduced the concept of SELECTION.
+-- Here we are using the WHERE clause to include only
+-- books that cost over $15.
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> WHERE price > 15
+   ...> ORDER BY price;
+Sense and Sensibility           Austen, Jane                    18.2      
+Harry Potter                    Rowling, J.K.                   19.95     
+Mrs. Dalloway                   Woolf, Virginia                 25.0      
+Tom Sawyer                      Twain, Mark                     25.0      
+Don Quixote                     Cervantes                       25.0      
+Lord of the Rings               Tolkien, J.R.                   27.45     
+A Room of One's Own             Woolf, Virginia                 29.0      
+Der Steppenwolf                 Hesse, Herman                   95.0      
+
+-- Keep in mind that the LIMIT keyword will allow you to restrict
+-- the number of records in the result set, in this case, to 3.
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price DESC
+   ...> LIMIT 3;
+Der Steppenwolf                 Hesse, Herman                   95.0      
+A Room of One's Own             Woolf, Virginia                 29.0      
+Lord of the Rings               Tolkien, J.R.                   27.45     
+
+-- Here are the three cheapest books in this collection ...
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price
+   ...> LIMIT 3;
+Bleak House                     Dickens, Charles                5.75      
+Huckleberry Finn                Twain, Mark                     5.76      
+Hamlet, Prince of Denmark       Shakespeare                     7.95      
+
+-- And the three cheapest books that cost less than $8.
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> WHERE price < 8
+   ...> ORDER BY price DESC
+   ...> LIMIT 3;
+Hamlet, Prince of Denmark       Shakespeare                     7.95      
+Huckleberry Finn                Twain, Mark                     5.76      
+Bleak House                     Dickens, Charles                5.75      
+
+-- To leave SQLite and close the database:
+sqlite> .exit

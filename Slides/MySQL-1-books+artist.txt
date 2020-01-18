@@ -1,0 +1,412 @@
+-- CSCI-UA.60-1 -- CLASS NOTES 10/31/2019
+
+-- Use SHOW TABLES in MySQL instead of .tables in SQLite:
+
+MariaDB [de123_db1]> SHOW TABLES;
++--------------------+
+| Tables_in_de123_db1 |
++--------------------+
+| account_types      |
+| accounts           |
+ ...
+| westernStates      |
+| wifi_freeHotspots  |
+| wifi_hotspots      |
++--------------------+
+36 rows in set (0.00 sec)
+
+-- Use SOURCE in MySQL rather than .read from SQLite:
+-- The books script is at
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/book_script_mysql.sql.txt
+
+MariaDB [de123_db1]> SOURCE book_script.sql;
+
+Query OK, 0 rows affected (0.00 sec)
+...
+Query OK, 1 row affected (0.00 sec)
+
+-- Use DESC (for "DESCRIBE") rather than .schema in SQLite.
+-- Note that MySQL will interpret DESC when used with ORDER BY for DESCENDING.
+
+MariaDB [de123_db1]> DESC books;
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| title        | varchar(32)  | NO   | PRI | NULL    |       |
+| author       | varchar(40)  | NO   |     | NULL    |       |
+| year_written | int(4)       | YES  |     | 0       |       |
+| edition      | varchar(20)  | NO   |     | NULL    |       |
+| price        | decimal(7,3) | YES  |     | NULL    |       |
+| purchaseDate | date         | NO   |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+MariaDB [de123_db1]> SELECT * FROM books;
++-------------------------------+----------------------+--------------+------------------+--------+--------------+
+| title                         | author               | year_written | edition          | price  | purchaseDate |
++-------------------------------+----------------------+--------------+------------------+--------+--------------+
+| A Room of One's Own           | Woolf, Virginia      |         1922 | Penguin          | 29.000 | 2013-11-30   |
+| Anna Karenina                 | Tolstoy, Leo         |         1875 | Penguin          | 13.500 | 2010-02-25   |
+| Bleak House                   | Dickens, Charles     |         1870 | Random House     |  5.750 | 2009-10-31   |
+| Der Steppenwolf               | Hesse, Herman        |         1928 | Fischer Verlag   | 95.000 | 2015-02-03   |
+| Don Quixote                   | Cervantes            |         1605 | Penguin          | 25.000 | 2015-07-21   |
+| Hamlet, Prince of Denmark     | Shakespeare          |         1603 | Signet Classics  |  7.950 | 2013-09-24   |
+| Harry Potter                  | Rowling, J.K.        |         2000 | Harcourt Brace   | 19.950 | 2014-01-01   |
+| Huckleberry Finn              | Twain, Mark          |         1865 | Penguin          |  5.760 | 2012-02-29   |
+| Lord of the Rings             | Tolkien, J.R.        |         1937 | Penguin          | 27.450 | 2013-09-25   |
+| Mrs. Dalloway                 | Woolf, Virginia      |         1925 | Harcourt Brace   | 25.000 | 2014-01-10   |
+| One Hundred Years of Solitude | Marquez              |         1967 | Harper Perennial | 14.000 | 2013-03-01   |
+| Sense and Sensibility         | Austen, Jane         |         1814 | Penguin          | 18.200 | 2016-12-01   |
+| The Great Gatsby              | Fitzgerald, F. Scott |         1925 | Penguin          | 12.000 | 2015-02-11   |
+| The Hours                     | Cunnningham, Michael |         1999 | Harcourt Brace   | 12.340 | 2012-11-08   |
+| Tom Sawyer                    | Twain, Mark          |         1862 | Random House     | 25.000 | 2009-09-20   |
+| War and Peace                 | Tolstoy, Leo         |         1865 | Penguin          | 12.700 | 2017-03-31   |
++-------------------------------+----------------------+--------------+------------------+--------+--------------+
+16 rows in set (0.00 sec)
+
+-- Most SELECT queries will run as they would in SQLite:
+
+MariaDB [de123_db1]> SELECT title,author
+    -> FROM books
+    -> ORDER BY author,title;
++-------------------------------+----------------------+
+| title                         | author               |
++-------------------------------+----------------------+
+| Sense and Sensibility         | Austen, Jane         |
+| Don Quixote                   | Cervantes            |
+| The Hours                     | Cunnningham, Michael |
+| Bleak House                   | Dickens, Charles     |
+| The Great Gatsby              | Fitzgerald, F. Scott |
+| Der Steppenwolf               | Hesse, Herman        |
+| One Hundred Years of Solitude | Marquez              |
+| Harry Potter                  | Rowling, J.K.        |
+| Hamlet, Prince of Denmark     | Shakespeare          |
+| Lord of the Rings             | Tolkien, J.R.        |
+| Anna Karenina                 | Tolstoy, Leo         |
+| War and Peace                 | Tolstoy, Leo         |
+| Huckleberry Finn              | Twain, Mark          |
+| Tom Sawyer                    | Twain, Mark          |
+| A Room of One's Own           | Woolf, Virginia      |
+| Mrs. Dalloway                 | Woolf, Virginia      |
++-------------------------------+----------------------+
+16 rows in set (0.00 sec)
+
+-- However, CONCATENATION is a function in MySQL.
+-- (In SQLite, concatenation uses the || operator.)
+
+-- The AS keyword is helpful to label a calculated column:
+
+MariaDB [de123_db1]> SELECT CONCAT(title," (",year_written," - ",edition,")") AS book
+    -> FROM books
+    -> ORDER BY title;
++---------------------------------------------------------+
+| book                                                    |
++---------------------------------------------------------+
+| A Room of One's Own (1922 - Penguin)                    |
+| Anna Karenina (1875 - Penguin)                          |
+| Bleak House (1870 - Random House)                       |
+| Der Steppenwolf (1928 - Fischer Verlag)                 |
+| Don Quixote (1605 - Penguin)                            |
+| Hamlet, Prince of Denmark (1603 - Signet Classics)      |
+| Harry Potter (2000 - Harcourt Brace)                    |
+| Huckleberry Finn (1865 - Penguin)                       |
+| Lord of the Rings (1937 - Penguin)                      |
+| Mrs. Dalloway (1925 - Harcourt Brace)                   |
+| One Hundred Years of Solitude (1967 - Harper Perennial) |
+| Sense and Sensibility (1814 - Penguin)                  |
+| The Great Gatsby (1925 - Penguin)                       |
+| The Hours (1999 - Harcourt Brace)                       |
+| Tom Sawyer (1862 - Random House)                        |
+| War and Peace (1865 - Penguin)                          |
++---------------------------------------------------------+
+16 rows in set (0.00 sec)
+
+-- Here the column header is written out (as we did not use the AS keyword.)
+
+MariaDB [de123_db1]> SELECT CONCAT(title," (",year_written," - ",edition,")") 
+    -> FROM books 
+    -> ORDER BY title;
+    
++---------------------------------------------------------+
+| CONCAT(title," (",year_written," - ",edition,")")       |
++---------------------------------------------------------+
+| A Room of One's Own (1922 - Penguin)                    |
+| Anna Karenina (1875 - Penguin)                          |
+| Bleak House (1870 - Random House)                       |
+| Der Steppenwolf (1928 - Fischer Verlag)                 |
+| Don Quixote (1605 - Penguin)                            |
+| Hamlet, Prince of Denmark (1603 - Signet Classics)      |
+| Harry Potter (2000 - Harcourt Brace)                    |
+| Huckleberry Finn (1865 - Penguin)                       |
+| Lord of the Rings (1937 - Penguin)                      |
+| Mrs. Dalloway (1925 - Harcourt Brace)                   |
+| One Hundred Years of Solitude (1967 - Harper Perennial) |
+| Sense and Sensibility (1814 - Penguin)                  |
+| The Great Gatsby (1925 - Penguin)                       |
+| The Hours (1999 - Harcourt Brace)                       |
+| Tom Sawyer (1862 - Random House)                        |
+| War and Peace (1865 - Penguin)                          |
++---------------------------------------------------------+
+16 rows in set (0.01 sec)
+
+-- Next we ran a script to include integer ID numbers for each book
+-- using AUTO_INCREMENT on the ID field.
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/book_script2_mysql.sql.txt
+-- Remember that for that to work ... you need to supply a NULL value in each record
+-- which will be replaced by the ID when the data are loaded into the table.
+
+MariaDB [de123_db1]> DESC books2;
++--------------+----------------------+------+-----+---------+----------------+
+| Field        | Type                 | Null | Key | Default | Extra          |
++--------------+----------------------+------+-----+---------+----------------+
+| ID           | smallint(5) unsigned | NO   | PRI | NULL    | auto_increment |
+| title        | varchar(32)          | NO   |     | NULL    |                |
+| author       | varchar(40)          | NO   |     | NULL    |                |
+| year_written | int(4)               | YES  |     | 0       |                |
+| edition      | varchar(20)          | NO   |     | NULL    |                |
+| price        | decimal(7,3)         | YES  |     | NULL    |                |
+| purchaseDate | date                 | YES  |     | NULL    |                |
++--------------+----------------------+------+-----+---------+----------------+
+7 rows in set (0.01 sec)
+
+-- The ID starts at 1 and increments by 1:
+
+MariaDB [de123_db1]> SELECT ID,title,author 
+    -> FROM books2 
+    -> ORDER BY ID;
++----+-------------------------------+----------------------+
+| ID | title                         | author               |
++----+-------------------------------+----------------------+
+|  1 | Northanger Abbey              | Austen, Jane         |
+|  2 | War and Peace                 | Tolstoy, Leo         |
+|  3 | Anna Karenina                 | Tolstoy, Leo         |
+|  4 | Mrs. Dalloway                 | Woolf, Virginia      |
+|  5 | The Hours                     | Cunnningham, Michael |
+|  6 | Huckleberry Finn              | Twain, Mark          |
+|  7 | Bleak House                   | Dickens, Charles     |
+|  8 | Tom Sawyer                    | Twain, Mark          |
+|  9 | Da Vinci Code                 | Brown, Dan           |
+| 10 | A Room of One's Own           | Woolf, Virginia      |
+| 11 | Harry Potter                  | Rowling, J.K.        |
+| 12 | One Hundred Years of Solitude | Marquez              |
+| 13 | Hamlet, Prince of Denmark     | Shakespeare          |
+| 14 | Lord of the Rings             | Tolkien, J.R.        |
++----+-------------------------------+----------------------+
+14 rows in set (0.00 sec)
+
+-- Note that after deleting records, the ID numbers are not changed.
+
+MariaDB [de123_db1]> DELETE
+    -> FROM books2
+    -> WHERE author = "Woolf, Virginia";
+Query OK, 2 rows affected (0.00 sec)
+
+MariaDB [de123_db1]> SELECT ID,title,author FROM books2 oRDER BY ID;
++----+-------------------------------+----------------------+
+| ID | title                         | author               |
++----+-------------------------------+----------------------+
+|  1 | Northanger Abbey              | Austen, Jane         |
+|  2 | War and Peace                 | Tolstoy, Leo         |
+|  3 | Anna Karenina                 | Tolstoy, Leo         |
+|  5 | The Hours                     | Cunnningham, Michael |
+|  6 | Huckleberry Finn              | Twain, Mark          |
+|  7 | Bleak House                   | Dickens, Charles     |
+|  8 | Tom Sawyer                    | Twain, Mark          |
+|  9 | Da Vinci Code                 | Brown, Dan           |
+| 11 | Harry Potter                  | Rowling, J.K.        |
+| 12 | One Hundred Years of Solitude | Marquez              |
+| 13 | Hamlet, Prince of Denmark     | Shakespeare          |
+| 14 | Lord of the Rings             | Tolkien, J.R.        |
++----+-------------------------------+----------------------+
+12 rows in set (0.00 sec)
+
+-- Before using LOAD DATA, it is helpful to set WARNINGS on:
+
+MariaDB [de123_db1]> SHOW WARNINGS;
+Empty set (0.00 sec)
+
+-- Next we ran the school districts .SQL script:
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/sd_mysql.sql.txt
+
+MariaDB [de123_db1]> SOURCE sd.sql;
+
+...
+Query OK, 10892 rows affected (0.14 sec)             
+Records: 10892  Deleted: 0  Skipped: 0  Warnings: 0
+
+-- Next we introduced a small "toy" database with tables for 
+-- artists, paintings, media and countries.
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/artists_media_paintings_4sql.sql.txt
+
+-- The artists' table:
+
+MariaDB [de123_db1]> DESC artists;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| artist_name     | varchar(32) | NO   | PRI | NULL    |       |
+| artist_origin   | varchar(15) | YES  | MUL | NULL    |       |
+| artist_yearBorn | int(4)      | YES  |     | 0       |       |
+| artist_yearDied | int(4)      | YES  |     | 0       |       |
++-----------------+-------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+MariaDB [de123_db1]> SELECT * FROM artists;
++-------------------------+---------------+-----------------+-----------------+
+| artist_name             | artist_origin | artist_yearBorn | artist_yearDied |
++-------------------------+---------------+-----------------+-----------------+
+| Cassatt, Mary           | USA           |            1844 |            1926 |
+| Cezanne, Paul           | France        |            1839 |            1906 |
+| da Vinci, Leonardo      | Italy         |            1452 |            1519 |
+| Degas, Hilaire-Germaine | France        |            1834 |            1917 |
+| Picasso, Pablo          | Spain         |            1881 |            1973 |
+| Rembrandt van Rijn      | Holland       |            1606 |            1669 |
+| Seurat, Georges         | France        |            1859 |            1891 |
+| Van Gogh, Vincent       | Holland       |            1853 |            1890 |
+| Vermeer, Johannes       | Holland       |            1632 |            1675 |
+| Wood, Grant             | USA           |            1891 |            1942 |
++-------------------------+---------------+-----------------+-----------------+
+10 rows in set (0.00 sec)
+
+-- And the paintings table:
+
+MariaDB [de123_db1]> DESC paintings;
++----------------------+---------------+------+-----+---------+-------+
+| Field                | Type          | Null | Key | Default | Extra |
++----------------------+---------------+------+-----+---------+-------+
+| ptg_title            | varchar(32)   | NO   | PRI | NULL    |       |
+| ptg_artist_name      | varchar(32)   | NO   | MUL | NULL    |       |
+| ptg_medium           | varchar(10)   | YES  | MUL | NULL    |       |
+| ptg_year_painted     | int(4)        | YES  |     | NULL    |       |
+| ptg_appraisal_amount | decimal(10,2) | YES  |     | NULL    |       |
++----------------------+---------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+MariaDB [de123_db1]> SELECT * 
+    -> FROM paintings 
+    -> ORDER BY ptg_title;
++---------------------------+-------------------------+------------+------------------+----------------------+
+| ptg_title                 | ptg_artist_name         | ptg_medium | ptg_year_painted | ptg_appraisal_amount |
++---------------------------+-------------------------+------------+------------------+----------------------+
+| At the Milliners          | Degas, Hilaire-Germaine | pastel     |             1882 |           2500000.00 |
+| Evening, Honfleur         | Seurat, Georges         | oil        |             1886 |            500000.00 |
+| Foliage                   | Cezanne, Paul           | watercolor |             1895 |           5000000.00 |
+| Girl with a Pearl Earring | Vermeer, Johannes       | oil        |             1660 |          25000000.00 |
+| Guitar                    | Picasso, Pablo          | mixed      |             1913 |            850000.00 |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | oil        |             1503 |           2500000.00 |
+| Last Supper               | da Vinci, Leonardo      | fresco     |             1498 |          30000000.00 |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | oil        |             1907 |          13000000.00 |
+| Self-Portrait             | Rembrandt van Rijn      | oil        |             1660 |          10000000.00 |
+| Stone Breakers, Le Raincy | Seurat, Georges         | crayon     |             1881 |            750000.00 |
+| The Bather                | Cezanne, Paul           | oil        |             1885 |           1500000.00 |
+| The Starry Night          | Van Gogh, Vincent       | oil        |             1889 |          38000000.00 |
++---------------------------+-------------------------+------------+------------------+----------------------+
+12 rows in set (0.01 sec)
+
+-- Next we used an IMPLICIT INNER JOIN by using the WHERE clause to match up the two tables
+-- based on the relationship where the artist's name is a PRIMARY KEY in the artist's table
+-- and a FOREIGN KEY in the paintings table.
+
+-- This is a 1:many relationship where any one artist can create multiple paintings.
+
+-- Notice that in addition to naming all of the fields with a table abbreviation,
+-- we are also indicating the table name using a 'dot' syntax.
+
+-- In this case we are asking to see all of the paintings, their respective artists 
+-- and where each artist is from.
+
+MariaDB [de123_db1]> SELECT paintings.ptg_title,paintings.ptg_artist_name,artists.artist_origin 
+    -> FROM paintings, artists 
+    -> WHERE paintings.ptg_artist_name = artists.artist_name 
+    -> ORDER BY paintings.ptg_title;
+
++---------------------------+-------------------------+---------------+
+| ptg_title                 | ptg_artist_name         | artist_origin |
++---------------------------+-------------------------+---------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        |
+| Evening, Honfleur         | Seurat, Georges         | France        |
+| Foliage                   | Cezanne, Paul           | France        |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       |
+| Guitar                    | Picasso, Pablo          | Spain         |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         |
+| Last Supper               | da Vinci, Leonardo      | Italy         |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        |
+| The Bather                | Cezanne, Paul           | France        |
+| The Starry Night          | Van Gogh, Vincent       | Holland       |
++---------------------------+-------------------------+---------------+
+12 rows in set (0.00 sec)
+
+-- Here we introduced using an alias to shorten the query.
+-- We are using 'p' for the paintings table and 'a' for the artists table.
+
+MariaDB [de123_db1]> SELECT p.ptg_title,p.ptg_artist_name,a.artist_origin
+    -> FROM paintings p, artists a
+    -> WHERE p.ptg_artist_name = a.artist_name
+    -> ORDER BY p.ptg_title;
+    
++---------------------------+-------------------------+---------------+
+| ptg_title                 | ptg_artist_name         | artist_origin |
++---------------------------+-------------------------+---------------+
+| At the Milliners          | Degas, Hilaire-Germaine | France        |
+| Evening, Honfleur         | Seurat, Georges         | France        |
+| Foliage                   | Cezanne, Paul           | France        |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Holland       |
+| Guitar                    | Picasso, Pablo          | Spain         |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | Italy         |
+| Last Supper               | da Vinci, Leonardo      | Italy         |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Spain         |
+| Self-Portrait             | Rembrandt van Rijn      | Holland       |
+| Stone Breakers, Le Raincy | Seurat, Georges         | France        |
+| The Bather                | Cezanne, Paul           | France        |
+| The Starry Night          | Van Gogh, Vincent       | Holland       |
++---------------------------+-------------------------+---------------+
+12 rows in set (0.01 sec)
+
+-- In this case, we asked the question:
+-- Which paintings in our collection are done by Italian artists?
+
+-- In order to do this, we need information from both tables.
+
+MariaDB [de123_db1]> SELECT p.ptg_title,p.ptg_artist_name,a.artist_origin 
+    -> FROM paintings p, artists a 
+    -> WHERE p.ptg_artist_name = a.artist_name 
+    ->   AND a.artist_origin="Italy" 
+    -> ORDER BY p.ptg_title;
+
++------------------------+--------------------+---------------+
+| ptg_title              | ptg_artist_name    | artist_origin |
++------------------------+--------------------+---------------+
+| La Jaconde [Mona Lisa] | da Vinci, Leonardo | Italy         |
+| Last Supper            | da Vinci, Leonardo | Italy         |
++------------------------+--------------------+---------------+
+2 rows in set (0.00 sec)
+
+-- An additional note came up after class which is to clarify that if all of the field names
+-- are unique (by using the convention of a table name + '_' + field name), we do not
+-- need to alias or specify the tables. However, this is done as it makes the code more readable
+-- and will allow us to use the same field name in cases where this is helpful e.g. with keys.
+
+MariaDB [de123_db1]> SELECT ptg_title,ptg_artist_name,artist_name
+    -> FROM paintings, artists
+    -> WHERE ptg_artist_name = artist_name
+    -> ORDER BY ptg_title;
++---------------------------+-------------------------+-------------------------+
+| ptg_title                 | ptg_artist_name         | artist_name             |
++---------------------------+-------------------------+-------------------------+
+| At the Milliners          | Degas, Hilaire-Germaine | Degas, Hilaire-Germaine |
+| Evening, Honfleur         | Seurat, Georges         | Seurat, Georges         |
+| Foliage                   | Cezanne, Paul           | Cezanne, Paul           |
+| Girl with a Pearl Earring | Vermeer, Johannes       | Vermeer, Johannes       |
+| Guitar                    | Picasso, Pablo          | Picasso, Pablo          |
+| La Jaconde [Mona Lisa]    | da Vinci, Leonardo      | da Vinci, Leonardo      |
+| Last Supper               | da Vinci, Leonardo      | da Vinci, Leonardo      |
+| Les Demoiselles d'Avignon | Picasso, Pablo          | Picasso, Pablo          |
+| Self-Portrait             | Rembrandt van Rijn      | Rembrandt van Rijn      |
+| Stone Breakers, Le Raincy | Seurat, Georges         | Seurat, Georges         |
+| The Bather                | Cezanne, Paul           | Cezanne, Paul           |
+| The Starry Night          | Van Gogh, Vincent       | Van Gogh, Vincent       |
++---------------------------+-------------------------+-------------------------+
+12 rows in set (0.01 sec)
+

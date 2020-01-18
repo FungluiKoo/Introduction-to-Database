@@ -1,0 +1,139 @@
+-- CSCI-UA.60-1
+-- CLASS NOTES 10/1/2019
+
+-- We began class with a question that came up early 
+-- in this unit. The question was whether SQLite could handle the 
+-- "head" (first n records) and "tail" (last n records)
+-- that one can execute in Python's PANDAS module.
+
+sqlite> .tables
+books
+sqlite> .schema books
+CREATE TABLE books (
+  title text NOT NULL,
+  author text,
+  year_written integer,
+  edition text,
+  price real,
+  purchaseDate text,
+  PRIMARY KEY(title)
+  );
+
+-- First, we selected the first 3 records in the books table by price:
+
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price
+   ...> LIMIT 3;
+
+Bleak House|Dickens, Charles|5.75
+Huckleberry Finn|Twain, Mark|5.76
+Hamlet, Prince of Denmark|Shakespeare|7.95
+
+sqlite> .mode columns
+
+-- ... and then the last 3 records in the books table, by price:
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price
+   ...> DESC
+   ...> LIMIT 3;
+Der Steppenwolf  Hesse, Herman  95.0      
+A Room of One's  Woolf, Virgin  29.0      
+Lord of the Rin  Tolkien, J.R.  27.45     
+
+-- Next we introduced the UNION query
+-- which allows you to put together the results of two queries
+-- into one result set
+-- with a final ordering:
+
+-- When a query contains other (smaller) queries, the smaller
+-- queries contained are called "nested queries" or "sub-queries".
+
+-- Note the syntax: that sub-queries must be contained in parentheses.
+-- It is a good idea to test your sub-query by itself to be sure that it works
+-- as anticipated.
+
+-- Here the first query is:
+--   (SELECT title,author,price FROM books ORDER BY price DESC LIMIT 3)
+
+-- and the second query is:
+--   (SELECT title,author,price FROM books ORDER BY price ASC LIMIT 3)
+
+-- These two result sets are combined in the final result set:
+
+sqlite> SELECT title,author,price
+   ...> FROM 
+   ...>   (SELECT title,author,price FROM books ORDER BY price DESC LIMIT 3)
+   ...> UNION
+   ...> SELECT * FROM 
+   ...>   (SELECT title,author,price FROM books ORDER BY price ASC LIMIT 3)
+   ...> ORDER BY price;
+Bleak House  Dickens, Charles  5.75      
+Huckleberry  Twain, Mark       5.76      
+Hamlet, Pri  Shakespeare       7.95      
+Lord of the  Tolkien, J.R.     27.45     
+A Room of O  Woolf, Virginia   29.0      
+Der Steppen  Hesse, Herman     95.0      
+
+-- Next we introduced the keyword OFFSET.
+
+-- OFFSET allows you to start obtaining results at a specific position
+-- within the result set.
+
+-- This is especially important for web displays or other presentations
+-- which might be paginated and the user has an option to select the page or other 
+-- similar presentation.
+
+-- Note that this query starts its display after the first five records:
+
+-- Here are all of the records:
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price;
+Bleak House  Dickens, Charles  5.75      
+Huckleberry  Twain, Mark       5.76      
+Hamlet, Pri  Shakespeare       7.95      
+The Great G  Fitzgerald, F. S  12.0      
+The Hours    Cunnningham, Mic  12.34     
+War and Pea  Tolstoy, Leo      12.7      
+Anna Kareni  Tolstoy, Leo      13.5      
+One Hundred  Marquez           14.0      
+Sense and S  Austen, Jane      18.2      
+Harry Potte  Rowling, J.K.     19.95     
+Mrs. Dallow  Woolf, Virginia   25.0      
+Tom Sawyer   Twain, Mark       25.0      
+Don Quixote  Cervantes         25.0      
+Lord of the  Tolkien, J.R.     27.45     
+A Room of O  Woolf, Virginia   29.0      
+Der Steppen  Hesse, Herman     95.0      
+
+-- and now the OFFSET is clear:
+
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price
+   ...> LIMIT 3 OFFSET 5;
+War and Peace  Tolstoy, Leo  12.7      
+Anna Karenina  Tolstoy, Leo  13.5      
+One Hundred Y  Marquez       14.0      
+
+-- So the other question that came up in an earlier class
+-- was to display the last n records of a result set.
+
+-- In order to do that, we would need an OFFSET of 
+--    (total number of records - n)
+
+-- In order to do this, we can set up a sub-query, in this case:
+--   ((SELECT COUNT(*) FROM books)
+-- and then subtract three in order to find the correct OFFSET position
+-- for the last three records:
+
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY PRICE
+   ...> LIMIT 3 OFFSET ((SELECT COUNT(*) FROM books)-3);
+Lord of the Rings  Tolkien, J.R.  27.45     
+A Room of One's O  Woolf, Virgin  29.0      
+Der Steppenwolf    Hesse, Herman  95.0      
+sqlite> 

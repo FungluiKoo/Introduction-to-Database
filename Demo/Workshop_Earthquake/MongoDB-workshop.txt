@@ -1,0 +1,49 @@
+-- CSCI-UA.60-1
+-- MongoDb Workshop
+-- 11/26/2019
+
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+
+-- How many earthquakes are on file? (How many documents are in this collection?)
+
+> db.earthquakes.count()
+194
+
+-- QUESTION #1: How many earthquakes occurred in Mexico? 
+
+> db.earthquakes.count({"COUNTRY":"MEXICO"})
+61
+
+-- QUESTION #2: List the five worst earthquakes (greatest magnitude) in Mexico in this file; display the location, year and strength for each one.
+
+> db.earthquakes.find({"COUNTRY":"MEXICO"},{_id:0,"LOCATION_NAME":1,"YEAR":1,"EQ_MAG":1}).sort({"EQ_MAG":-1}).limit(5)
+{ "YEAR" : 1907, "EQ_MAG" : 8.3, "LOCATION_NAME" : "MEXICO:  GUERRERO" }
+{ "YEAR" : 1932, "EQ_MAG" : 8.2, "LOCATION_NAME" : "MEXICO:  NEAR COAST OF JALISCO" }
+{ "YEAR" : 1908, "EQ_MAG" : 8.1, "LOCATION_NAME" : "MEXICO:  GUERRERO" }
+{ "YEAR" : 1985, "EQ_MAG" : 8.1, "LOCATION_NAME" : "MEXICO:  MICHOACAN:  MEXICO CITY" }
+{ "YEAR" : 1911, "EQ_MAG" : 7.9, "LOCATION_NAME" : "MEXICO:  MICHOACAN" }
+
+
+-- QUESTION #3: List the three worst earthquakes in Alaska along with the year, location and magnitude.
+
+> db.earthquakes.find({"STATE":"AK"},{_id:0,"LOCATION_NAME":1,"YEAR":1,"EQ_MAG":1}).sort({"EQ_MAG":-1}).limit(3)
+{ "YEAR" : 1957, "EQ_MAG" : 9.1, "LOCATION_NAME" : "ALASKA" }
+{ "YEAR" : 2002, "EQ_MAG" : 8.5, "LOCATION_NAME" : "ALASKA:  SLANA, MENTASTA LAKE, FAIRBANKS" }
+{ "YEAR" : 1964, "EQ_MAG" : 8.4, "LOCATION_NAME" : "ALASKA" }
+
+-- QUESTION #4:	How many earthquakes occurred in California, Oregon, Washington and Alaska? Answer this query using the STATE key values.
+
+> db.earthquakes.find({"STATE":{$in:["CA","OR","WA","AK"]}}).count()
+97
+
+-- QUESTION #5:	List the year, location and magnitude for recorded earthquakes that occurred in Canada before 1960 in chronological order.
+
+> db.earthquakes.find({$and:[{"COUNTRY":"CANADA"},{"YEAR":{$lt:1960}}]},{_id:0,"YEAR":1,"LOCATION_NAME":1,"EQ_MAG":1}).sort({"YEAR":1})
+{ "YEAR" : 1928, "EQ_MAG" : 5.8, "LOCATION_NAME" : "BRITISH COLUMBIA" }
+{ "YEAR" : 1933, "EQ_MAG" : 7.4, "LOCATION_NAME" : "CANADA:  BAFFIN BAY" }
+{ "YEAR" : 1938, "EQ_MAG" : 6.3, "LOCATION_NAME" : "CANADA:  BRITISH COLUMBIA" }
+{ "YEAR" : 1949, "EQ_MAG" : 8.1, "LOCATION_NAME" : "CANADA:  QUEEN CHARLOTTE ISLANDS" }
+> 
+

@@ -1,0 +1,151 @@
+funglui@LAPTOP-VQI32I7J:~$ ssh fg1121@i6.cims.nyu.edu
+Password:
+Last login: Tue Nov 19 22:54:38 2019 from 10-20-234-165.dynapool.wireless.nyu.edu
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+        LANGUAGE = (unset),
+        LC_ALL = (unset),
+        LANG = "C.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+You are using 0% of your 1.0G quota for /home/fg1121.
+You are using 0% of your 1.0G quota for /web/fg1121.
+[fg1121@i6 ~]$ mysql -hwarehouse -p123456 fg1121_cs060 < HW5_Query.sql
+course_title    teacher_name
+Analysis        Cindy
+Hotel Investment and Management Bob
+Intro to Fake News Recognition  Bob
+Programming     David
+course_title    eval_value
+Analysis        8
+Analysis        9
+Analysis        7
+Analysis        10
+Hotel Investment and Management 10
+Hotel Investment and Management 7
+Hotel Investment and Management 6
+Intro to Fake News Recognition  10
+Intro to Fake News Recognition  7
+Intro to Fake News Recognition  9
+Intro to Fake News Recognition  8
+Programming     10
+Programming     8
+student_name    score_value
+Bush    93
+Bush    97
+Carter  84
+Carter  86
+Clinton 77
+Clinton 83
+Coolidge        NULL
+Eisenhower      80
+Ford    73
+Ford    81
+Hoover  79
+Johnson 74
+Kennedy 75
+Nixon   94
+Obama   99
+Obama   95
+Obama   96
+Reagan  87
+Reagan  91
+Roosevelt       78
+Truman  85
+Trump   NULL
+teacher_name    course_title
+Amy     NULL
+Bob     Intro to Fake News Recognition
+Bob     Hotel Investment and Management
+Cindy   Analysis
+David   Programming
+Students with A+ Records
+Bush
+Obama
+Courses without Bad Feedback
+Analysis
+Intro to Fake News Recognition
+Programming
+Teachers with Good Evaluation Result
+David
+student_name    course_title    score_value
+Bush    Programming     97
+Bush    Intro to Fake News Recognition  93
+Carter  Programming     86
+Carter  Intro to Fake News Recognition  84
+Clinton Intro to Fake News Recognition  77
+Clinton Programming     83
+Eisenhower      Analysis        80
+Ford    Hotel Investment and Management 73
+Ford    Programming     81
+Hoover  Analysis        79
+Johnson Hotel Investment and Management 74
+Kennedy Hotel Investment and Management 75
+Nixon   Hotel Investment and Management 94
+Obama   Analysis        96
+Obama   Intro to Fake News Recognition  99
+Obama   Hotel Investment and Management 95
+Reagan  Programming     91
+Reagan  Intro to Fake News Recognition  87
+Roosevelt       Analysis        78
+Truman  Analysis        85
+teacher_name    course_title
+Amy     Analysis
+Amy     Hotel Investment and Management
+Amy     Intro to Fake News Recognition
+Amy     Programming
+Bob     Analysis
+Bob     Hotel Investment and Management
+Bob     Intro to Fake News Recognition
+Bob     Programming
+Cindy   Analysis
+Cindy   Hotel Investment and Management
+Cindy   Intro to Fake News Recognition
+Cindy   Programming
+David   Analysis
+David   Hotel Investment and Management
+David   Intro to Fake News Recognition
+David   Programming
+eval_course     student_name    eval_value
+NULL    Bush    NULL
+NULL    Coolidge        NULL
+NULL    Johnson NULL
+NULL    Nixon   NULL
+NULL    Roosevelt       NULL
+NULL    Trump   NULL
+6001    Carter  8
+6001    Clinton 7
+6001    Obama   10
+6001    Reagan  9
+6002    Ford    7
+6002    Kennedy 6
+6002    Obama   10
+6003    Eisenhower      8
+6003    Hoover  7
+6003    Obama   10
+6003    Truman  9
+6004    Carter  8
+6004    Reagan  10
+student_name
+Bush
+Nixon
+Obama
+student_name
+Bush
+Carter
+Nixon
+Obama
+Reagan
+Truman
+student_name
+Obama
+Bush
+Clinton
+Reagan
+Carter
+Ford
+Nixon
+Johnson
+Kennedy
+teacher_id      teacher_name    teacher_wa      teacher_title
+9001    Amy     0       Honors Professor

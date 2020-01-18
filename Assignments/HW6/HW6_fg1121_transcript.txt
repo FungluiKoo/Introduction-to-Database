@@ -1,0 +1,94 @@
+[fg1121@i6 ~]$ mongo fg1121 --host class-mongodb.cims.nyu.edu -u fg1121 -pWeFVr6Gp
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/fg1121
+> show collections
+hw6
+system.indexes
+
+-- Q1
+> db.hw6.find({"state":"NY"},{}).count()
+1595
+
+-- Q2
+> db.hw6.find({"state":"GA","pop":{$gt:0}},{"_id":1,"pop":1}).sort({"pop":1}).limit(5)
+{ "_id" : "30346", "pop" : 18 }
+{ "_id" : "30148", "pop" : 98 }
+{ "_id" : "31743", "pop" : 112 }
+{ "_id" : "31327", "pop" : 120 }
+{ "_id" : "31066", "pop" : 121 }
+
+-- Q3
+> db.hw6.find({"city":"BRONX","state":"NY"},{"_id":1,"pop":1}).sort({"_id":1}).limit(3)
+{ "_id" : "10451", "pop" : 42854 }
+{ "_id" : "10452", "pop" : 55890 }
+{ "_id" : "10453", "pop" : 70544 }
+
+-- Q4
+> db.hw6.find({"state":{$nin:["HI","AK","PR"]}},{}).count()
+29078
+
+-- Q5
+> db.hw6.find({"state":{$in:["NY","NJ","CT"]}},{}).count()
+2398
+
+-- Q6-1
+> db.hw6.distinct("city",{"state":"DC"})
+[ "WASHINGTON", "PENTAGON" ]
+
+-- Q6-2
+> db.hw6.aggregate([ { $group: {_id:"$state",total:{$sum:"$pop"} } }])
+{ "_id" : "AK", "total" : 544698 }
+{ "_id" : "AZ", "total" : 3665228 }
+{ "_id" : "UT", "total" : 1722850 }
+{ "_id" : "WY", "total" : 453528 }
+{ "_id" : "CO", "total" : 3293755 }
+{ "_id" : "ID", "total" : 1006749 }
+{ "_id" : "OK", "total" : 3145585 }
+{ "_id" : "AR", "total" : 2350725 }
+{ "_id" : "LA", "total" : 4217595 }
+{ "_id" : "NV", "total" : 1201833 }
+{ "_id" : "NE", "total" : 1578139 }
+{ "_id" : "KS", "total" : 2475285 }
+{ "_id" : "MO", "total" : 5110648 }
+{ "_id" : "IL", "total" : 11427576 }
+{ "_id" : "OH", "total" : 10846517 }
+{ "_id" : "KY", "total" : 3675484 }
+{ "_id" : "IN", "total" : 5544136 }
+{ "_id" : "WI", "total" : 4891769 }
+{ "_id" : "HI", "total" : 1108229 }
+{ "_id" : "MS", "total" : 2573216 }
+Type "it" for more
+> it
+{ "_id" : "IA", "total" : 2776420 }
+{ "_id" : "AL", "total" : 4040587 }
+{ "_id" : "FL", "total" : 12686644 }
+{ "_id" : "MI", "total" : 9295297 }
+{ "_id" : "OR", "total" : 2842321 }
+{ "_id" : "GA", "total" : 6478216 }
+{ "_id" : "NC", "total" : 6628637 }
+{ "_id" : "MT", "total" : 798948 }
+{ "_id" : "ND", "total" : 638272 }
+{ "_id" : "MD", "total" : 4781379 }
+{ "_id" : "MN", "total" : 4372982 }
+{ "_id" : "DC", "total" : 606900 }
+{ "_id" : "DE", "total" : 666168 }
+{ "_id" : "WV", "total" : 1793146 }
+{ "_id" : "NJ", "total" : 7730188 }
+{ "_id" : "TN", "total" : 4876457 }
+{ "_id" : "VA", "total" : 6181479 }
+{ "_id" : "NY", "total" : 17990402 }
+{ "_id" : "WA", "total" : 4866692 }
+{ "_id" : "CT", "total" : 3287116 }
+Type "it" for more
+> it
+{ "_id" : "SC", "total" : 3486703 }
+{ "_id" : "PA", "total" : 11881643 }
+{ "_id" : "VT", "total" : 562758 }
+{ "_id" : "TX", "total" : 16984601 }
+{ "_id" : "SD", "total" : 695397 }
+{ "_id" : "NH", "total" : 1109252 }
+{ "_id" : "CA", "total" : 29754890 }
+{ "_id" : "NM", "total" : 1515069 }
+{ "_id" : "RI", "total" : 1003218 }
+{ "_id" : "ME", "total" : 1226648 }
+{ "_id" : "MA", "total" : 6016425 }

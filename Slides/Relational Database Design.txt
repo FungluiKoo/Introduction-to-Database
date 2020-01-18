@@ -1,0 +1,31 @@
+CSCI-UA.60-1 Case Study: A study on children and literacy
+
+STUDENT
+PK -student ID (N#)
+FK - child's school ID (S#)
+student's address: zip code, street, city/Borough, state
+child's grade -- NOT NEEDED HERE
+child's gender
+child's age -- Date of birth
+
+SCHOOL
+PK - school ID (S#)
+public vs. private school
+school name
+school address: zip code, street, city/Borough
+
+TEST
+PK - test ID (T#)
+author of each test
+test name ("Reading Comprehension")
+for each test: perfect score (maximum)
+for student's grade (2nd, 3rd, 4th etc.)
+category
+date the test was written
+
+TEST RESULTS
+PK - result ID (R#)
+FK - test ID (T#)
+FK - student ID (N#) 
+each test score as raw score
+date each test is administered

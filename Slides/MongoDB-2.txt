@@ -1,0 +1,355 @@
+-- CSCI-UA.60-1
+-- MongoDB class
+-- 11/21/2019
+
+-- load mongodb:
+
+[de123@i6 mongodbFiles]$ module load mongodb-3.2.0 
+
+-- and open the database:
+
+[de123@i6 mongodbFiles]$ mongo de123 --host class-mongodb.cims.nyu.edu -u de123 -ppassword
+MongoDB shell version: 3.2.0
+connecting to: class-mongodb.cims.nyu.edu:27017/de123
+
+-- which collections are in this database?
+
+> show collections
+books
+books_csv
+earthquakes
+hotspots
+sd
+subways
+system.indexes
+users
+wifi
+zips
+
+-- How many documents are in the books collection?
+
+> db.books.count()
+13
+
+-- What does a sample document look like?
+
+> db.books.findOne()
+{
+	"_id" : ObjectId("5dd6e115c431561fbb418790"),
+	"title" : "War and Peace",
+	"author" : "Tolstoy, Leo",
+	"year_written" : 1865,
+	"edition" : "Penguin",
+	"price" : 12.7
+}
+
+-- or do it this way:
+
+> db.books.find().pretty().limit(1)
+{
+	"_id" : ObjectId("5dd6e115c431561fbb418790"),
+	"title" : "War and Peace",
+	"author" : "Tolstoy, Leo",
+	"year_written" : 1865,
+	"edition" : "Penguin",
+	"price" : 12.7
+}
+
+-- Display the author, title and year written in order by author and title within author.
+
+> db.books.find({},{_id:0,"author":1,"title":1,"year_written":1}).sort({"author":1,"title":1})
+{ "title" : "Northanger Abbey", "author" : "Austen, Jane", "year_written" : 1814 }
+{ "title" : "The Hours", "author" : "Cunnningham, Michael", "year_written" : 1999 }
+{ "title" : "Bleak House", "author" : "Dickens, Charles", "year_written" : 1870 }
+{ "title" : "One Hundred Years of Solitude", "author" : "Marquez", "year_written" : 1967 }
+{ "title" : "Harry Potter", "author" : "Rowling, J.K.", "year_written" : 2000 }
+{ "title" : "Hamlet, Prince of Denmark", "author" : "Shakespeare", "year_written" : 1603 }
+{ "title" : "Lord of the Rings", "author" : "Tolkien, J.R.", "year_written" : 1937 }
+{ "title" : "Anna Karenina", "author" : "Tolstoy, Leo", "year_written" : 1875 }
+{ "title" : "War and Peace", "author" : "Tolstoy, Leo", "year_written" : 1865 }
+{ "title" : "Huckleberry Finn", "author" : "Twain, Mark", "year_written" : 1865 }
+{ "title" : "Tom Sawyer", "author" : "Twain, Mark", "year_written" : 1862 }
+{ "title" : "A Room of One's Own", "author" : "Woolf, Virginia", "year_written" : 1922 }
+{ "title" : "Mrs. Dalloway", "author" : "Woolf, Virginia", "year_written" : 1925 }
+
+-- Display the title, publisher/edition and price in descending order by price:
+
+> db.books.find({},{_id:0,"title":1,"edition":1,"price":1}).sort({"price":-1})
+{ "title" : "A Room of One's Own", "edition" : "Penguin", "price" : 29 }
+{ "title" : "Lord of the Rings", "edition" : "Penguin", "price" : 27.45 }
+{ "title" : "Mrs. Dalloway", "edition" : "Harcourt Brace", "price" : 25 }
+{ "title" : "Harry Potter", "edition" : "Harcourt Brace", "price" : 19.95 }
+{ "title" : "Northanger Abbey", "edition" : "Penguin", "price" : 18.2 }
+{ "title" : "One Hundred Years of Solitude", "edition" : "Harper  Perennial", "price" : 14 }
+{ "title" : "Anna Karenina", "edition" : "Penguin", "price" : 13.5 }
+{ "title" : "War and Peace", "edition" : "Penguin", "price" : 12.7 }
+{ "title" : "The Hours", "edition" : "Harcourt Brace", "price" : 12.35 }
+{ "title" : "Hamlet, Prince of Denmark", "edition" : "Signet  Classics", "price" : 7.95 }
+{ "title" : "Tom Sawyer", "edition" : "Random House", "price" : 7.75 }
+{ "title" : "Huckleberry Finn", "edition" : "Penguin", "price" : 5.76 }
+{ "title" : "Bleak House", "edition" : "Random House", "price" : 5.75 }
+
+-- Which are the the three most expensive books?
+
+> db.books.find({},{_id:0,"title":1,"edition":1,"price":1}).sort({"price":-1}).limit(3)
+{ "title" : "A Room of One's Own", "edition" : "Penguin", "price" : 29 }
+{ "title" : "Lord of the Rings", "edition" : "Penguin", "price" : 27.45 }
+{ "title" : "Mrs. Dalloway", "edition" : "Harcourt Brace", "price" : 25 }
+
+-- Display books that are published by Penguin, in order by title:
+
+> db.books.find({"edition":"Penguin"},{_id:0,"title":1,"edition":1}).sort({"title":1})
+{ "title" : "A Room of One's Own", "edition" : "Penguin" }
+{ "title" : "Anna Karenina", "edition" : "Penguin" }
+{ "title" : "Huckleberry Finn", "edition" : "Penguin" }
+{ "title" : "Lord of the Rings", "edition" : "Penguin" }
+{ "title" : "Northanger Abbey", "edition" : "Penguin" }
+{ "title" : "War and Peace", "edition" : "Penguin" }
+
+-- Display the title, year written and edition for all books written in or after 1850:
+
+> db.books.find({"year_written":{$gte:1850}},{_id:0,"title":1,"year_written":1,"edition":1})
+{ "title" : "War and Peace", "year_written" : 1865, "edition" : "Penguin" }
+{ "title" : "Mrs. Dalloway", "year_written" : 1925, "edition" : "Harcourt Brace" }
+{ "title" : "Anna Karenina", "year_written" : 1875, "edition" : "Penguin" }
+{ "title" : "The Hours", "year_written" : 1999, "edition" : "Harcourt Brace" }
+{ "title" : "Bleak House", "year_written" : 1870, "edition" : "Random House" }
+{ "title" : "Tom Sawyer", "year_written" : 1862, "edition" : "Random House" }
+{ "title" : "A Room of One's Own", "year_written" : 1922, "edition" : "Penguin" }
+{ "title" : "Harry Potter", "year_written" : 2000, "edition" : "Harcourt Brace" }
+{ "title" : "Huckleberry Finn", "year_written" : 1865, "edition" : "Penguin" }
+{ "title" : "One Hundred Years of Solitude", "year_written" : 1967, "edition" : "Harper  Perennial" }
+{ "title" : "Lord of the Rings", "year_written" : 1937, "edition" : "Penguin" }
+
+-- Display the title, year written and edition for books that were written
+-- in 1850 or later AND published by Penguin in order by title:
+
+> db.books.find({$and:[{"year_written":{$gte:1850}},{"edition":"Penguin"}]},{_id:0,"title":1,"year_written":1,"edition":1}).sort({"title":1})
+{ "title" : "A Room of One's Own", "year_written" : 1922, "edition" : "Penguin" }
+{ "title" : "Anna Karenina", "year_written" : 1875, "edition" : "Penguin" }
+{ "title" : "Huckleberry Finn", "year_written" : 1865, "edition" : "Penguin" }
+{ "title" : "Lord of the Rings", "year_written" : 1937, "edition" : "Penguin" }
+{ "title" : "War and Peace", "year_written" : 1865, "edition" : "Penguin" }
+
+-- Display the title and year written in order by title for all books written
+-- in the 19th century:
+
+> db.books.find({$and:[{"year_written":{$gte:1800}},{"year_written":{$lt:1900}}]},{_id:0,"title":1,"year_written":1}).sort({"title":1})
+{ "title" : "Anna Karenina", "year_written" : 1875 }
+{ "title" : "Bleak House", "year_written" : 1870 }
+{ "title" : "Huckleberry Finn", "year_written" : 1865 }
+{ "title" : "Northanger Abbey", "year_written" : 1814 }
+{ "title" : "Tom Sawyer", "year_written" : 1862 }
+{ "title" : "War and Peace", "year_written" : 1865 }
+
+-- Display the title, year written and edition for all books written
+-- in or after 1900 OR were published by Penguin:
+
+> db.books.find({$or:[{"year_written":{$gte:1900}},{"edition":"Penguin"}]},{_id:0,"title":1,"year_written":1,"edition":1}).sort({"title":1})
+{ "title" : "A Room of One's Own", "year_written" : 1922, "edition" : "Penguin" }
+{ "title" : "Anna Karenina", "year_written" : 1875, "edition" : "Penguin" }
+{ "title" : "Harry Potter", "year_written" : 2000, "edition" : "Harcourt Brace" }
+{ "title" : "Huckleberry Finn", "year_written" : 1865, "edition" : "Penguin" }
+{ "title" : "Lord of the Rings", "year_written" : 1937, "edition" : "Penguin" }
+{ "title" : "Mrs. Dalloway", "year_written" : 1925, "edition" : "Harcourt Brace" }
+{ "title" : "Northanger Abbey", "year_written" : 1814, "edition" : "Penguin" }
+{ "title" : "One Hundred Years of Solitude", "year_written" : 1967, "edition" : "Harper  Perennial" }
+{ "title" : "The Hours", "year_written" : 1999, "edition" : "Harcourt Brace" }
+{ "title" : "War and Peace", "year_written" : 1865, "edition" : "Penguin" }
+
+-- Which books were written in 1862 or 1865?
+
+> db.books.find({"year_written":{$in:[1862,1865]}},{_id:0,"title":1,"year_written":1}).sort({"title":1})
+{ "title" : "Huckleberry Finn", "year_written" : 1865 }
+{ "title" : "Tom Sawyer", "year_written" : 1862 }
+{ "title" : "War and Peace", "year_written" : 1865 }
+
+-- Which books were not written in 1862 or 1865?
+
+> db.books.find({"year_written":{$nin:[1862,1865]}},{_id:0,"title":1,"year_written":1}).sort({"title":1})
+{ "title" : "A Room of One's Own", "year_written" : 1922 }
+{ "title" : "Anna Karenina", "year_written" : 1875 }
+{ "title" : "Bleak House", "year_written" : 1870 }
+{ "title" : "Hamlet, Prince of Denmark", "year_written" : 1603 }
+{ "title" : "Harry Potter", "year_written" : 2000 }
+{ "title" : "Lord of the Rings", "year_written" : 1937 }
+{ "title" : "Mrs. Dalloway", "year_written" : 1925 }
+{ "title" : "Northanger Abbey", "year_written" : 1814 }
+{ "title" : "One Hundred Years of Solitude", "year_written" : 1967 }
+{ "title" : "The Hours", "year_written" : 1999 }
+
+-- List the authors in this collection without duplicates.
+-- Notice that the result is an array (similar in this context to a Python list).
+
+> db.books.distinct("author")
+[
+	"Tolstoy, Leo",
+	"Woolf, Virginia",
+	"Cunnningham, Michael",
+	"Dickens, Charles",
+	"Twain, Mark",
+	"Rowling, J.K.",
+	"Marquez",
+	"Shakespeare",
+	"Tolkien, J.R.",
+	"Austen, Jane"
+]
+
+-- Next we looked at a collection of documents on wi-fi hotspots in NYC.
+-- This is excerpted from a table at the NYC "open data" site.
+
+-- Display a sample document:
+
+> db.wifi.findOne()
+{
+	"_id" : ObjectId("5c02a267e258658902ed5743"),
+	"OBJECTID" : "1",
+	"Shape" : [
+		40.76611954300006,
+		-73.98791631199992
+	],
+	"NAME" : "404 W 54th Street",
+	"ID" : "1117",
+	"ADDRESS" : "404 W 54th Street",
+	"CITY" : "New York",
+	"ZIP" : "10019",
+	"PHONE" : "",
+	"TYPE" : "Free",
+	"URL" : ""
+}
+
+-- How many hotspots are on file?
+
+> db.wifi.count()
+8
+
+-- We need to create an Index in order to use the geo-spatial data:
+
+> db.wifi.ensureIndex({"Shape":"2d"})
+{
+	"createdCollectionAutomatically" : false,
+	"numIndexesBefore" : 2,
+	"numIndexesAfter" : 2,
+	"note" : "all indexes already exist",
+	"ok" : 1
+}
+
+-- Display the street address and city for all of the documents:
+
+> db.wifi.find({},{_id:0,"ADDRESS":1,"CITY":1})
+{ "ADDRESS" : "404 W 54th Street", "CITY" : "New York" }
+{ "ADDRESS" : "396 Avenue of the Americas", "CITY" : "New York" }
+{ "ADDRESS" : "16 W. 8th Street", "CITY" : "New York" }
+{ "ADDRESS" : "Concourse A, third level", "CITY" : "Flushing" }
+{ "ADDRESS" : "Behind the Northwest ticket counter", "CITY" : "Flushing" }
+{ "ADDRESS" : "Battery  Place & 1 Place", "CITY" : "New York" }
+{ "ADDRESS" : "1101 E Tremont Ave", "CITY" : "Bronx" }
+{ "ADDRESS" : "4174 White Plains Rd", "CITY" : "Bronx" }
+
+-- Which wi-fi hotspots are close to the Courant Institute?
+-- Display the street address and city in order by proximity.
+
+> db.wifi.find({"Shape":{$near:[40.7287,-73.9957]}},{_id:0,"ADDRESS":1,"CITY":1})
+{ "ADDRESS" : "16 W. 8th Street", "CITY" : "New York" }
+{ "ADDRESS" : "396 Avenue of the Americas", "CITY" : "New York" }
+{ "ADDRESS" : "Battery  Place & 1 Place", "CITY" : "New York" }
+{ "ADDRESS" : "404 W 54th Street", "CITY" : "New York" }
+{ "ADDRESS" : "Concourse A, third level", "CITY" : "Flushing" }
+{ "ADDRESS" : "Behind the Northwest ticket counter", "CITY" : "Flushing" }
+{ "ADDRESS" : "1101 E Tremont Ave", "CITY" : "Bronx" }
+{ "ADDRESS" : "4174 White Plains Rd", "CITY" : "Bronx" }
+
+-- Which wi-fi hotspot in this collection is closest to the Courant Institute?
+
+> db.wifi.find({"Shape":{$near:[40.7287,-73.9957]}},{_id:0,"ADDRESS":1,"CITY":1}).limit(1)
+{ "ADDRESS" : "16 W. 8th Street", "CITY" : "New York" }
+
+-- We then went back to the books collection to discuss the AGGREGATION FRAMEWORK.
+
+> db.books.findOne()
+{
+	"_id" : ObjectId("5dd6e115c431561fbb418790"),
+	"title" : "War and Peace",
+	"author" : "Tolstoy, Leo",
+	"year_written" : 1865,
+	"edition" : "Penguin",
+	"price" : 12.7
+}
+> db.books.count()
+13
+
+-- How many books (documents) are in this collection?
+-- This is the same as the following in SQL:
+    SELECT COUNT(*) FROM books;
+
+> db.books.aggregate([{$group:{_id:null,count:{$sum:1}}}])
+{ "_id" : null, "count" : 13 }
+
+-- ... and the same as:
+
+> db.books.count()
+13
+
+-- What is the total value of the books in this collection?
+-- This is the same as the following in SQL;
+    SELECT SUM(price) FROM books;
+
+> db.books.aggregate([{$group:{_id:0,total_value:{$sum:"$price"}}}])
+{ "_id" : 0, "total_value" : 199.35999999999999 }
+
+-- But then we asked to see sub-totals by edition.
+-- Notice that in this case, the edition becomes the _id value.
+-- This is the same as the following in SQL;
+    SELECT edition,SUM(price)
+    FROM books
+    GROUP BY edition;
+
+> db.books.aggregate([{$group:{_id:"$edition",total_value:{$sum:"$price"}}}])
+{ "_id" : "Harper  Perennial", "total_value" : 14 }
+{ "_id" : "Signet  Classics", "total_value" : 7.95 }
+{ "_id" : "Random House", "total_value" : 13.5 }
+{ "_id" : "Harcourt Brace", "total_value" : 57.3 }
+{ "_id" : "Penguin", "total_value" : 106.61 }
+
+-- We then asked to sort the results by edition.
+-- This is the same as the following in SQL;
+    SELECT edition,SUM(price)
+    FROM books
+    GROUP BY edition
+    ORDER BY edition;
+
+> db.books.aggregate([{$group:{_id:"$edition",total_value:{$sum:"$price"}}},{$sort:{_id:1}}])
+{ "_id" : "Harcourt Brace", "total_value" : 57.3 }
+{ "_id" : "Harper  Perennial", "total_value" : 14 }
+{ "_id" : "Penguin", "total_value" : 106.61 }
+{ "_id" : "Random House", "total_value" : 13.5 }
+{ "_id" : "Signet  Classics", "total_value" : 7.95 }
+
+-- A question came up in class: can we order by the value in ascending order?
+-- This is the same as the following in SQL;
+    SELECT edition,SUM(price) AS p
+    FROM books
+    GROUP BY edition
+    ORDER BY p;
+
+> db.books.aggregate([{$group:{_id:"$edition",total_value:{$sum:"$price"}}},{$sort:{total_value:1}}])
+{ "_id" : "Signet  Classics", "total_value" : 7.95 }
+{ "_id" : "Random House", "total_value" : 13.5 }
+{ "_id" : "Harper  Perennial", "total_value" : 14 }
+{ "_id" : "Harcourt Brace", "total_value" : 57.3 }
+{ "_id" : "Penguin", "total_value" : 106.61 }
+
+-- ... and in descending order.
+-- This is the same as the following in SQL;
+    SELECT edition,SUM(price) AS p
+    FROM books
+    GROUP BY edition
+    ORDER BY p DESC;
+
+> db.books.aggregate([{$group:{_id:"$edition",total_value:{$sum:"$price"}}},{$sort:{total_value:-1}}])
+{ "_id" : "Penguin", "total_value" : 106.61 }
+{ "_id" : "Harcourt Brace", "total_value" : 57.3 }
+{ "_id" : "Harper  Perennial", "total_value" : 14 }
+{ "_id" : "Random House", "total_value" : 13.5 }
+{ "_id" : "Signet  Classics", "total_value" : 7.95 }
+> 

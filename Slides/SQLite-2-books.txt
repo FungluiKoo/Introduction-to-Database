@@ -1,0 +1,692 @@
+-- CSCI-UA.60-1
+-- SQLite Class #2 - 9/19/2019
+-- Transcript of class session
+
+-- We re-opened the books.db file that we created in class.
+-- the script for creating this table along with all other materials
+-- is on the Class notes page:
+-- https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_sqlite_fa19.html
+
+(base) 10-16-86-204:SQLite deena$ sqlite3 books.db
+SQLite version 3.29.0 2019-07-10 17:32:03
+Enter ".help" for usage hints.
+
+-- There is only one table in the database.
+sqlite> .tables
+books
+
+-- Here is the structure of the table.
+sqlite> .schema books
+CREATE TABLE books (
+  title text NOT NULL,
+  author text,
+  year_written integer,
+  edition text,
+  price real,
+  purchaseDate text,
+  PRIMARY KEY(title)
+  );
+
+-- How many records are in the books table?
+
+sqlite> SELECT COUNT(*) FROM books;
+16
+
+-- A question came up in class as to whether we could re-run the script anytime.
+-- so we ran the script and checked on the results.
+
+sqlite> .read books_script_sqlite.sql
+sqlite> .tables
+books
+
+-- including a sample query:
+sqlite> SELECT title,author,edition
+   ...> FROM books
+   ...> WHERE edition="Penguin"
+   ...> ORDER BY title;
+A Room of One's Own|Woolf, Virginia|Penguin
+Anna Karenina|Tolstoy, Leo|Penguin
+Don Quixote|Cervantes|Penguin
+Huckleberry Finn|Twain, Mark|Penguin
+Lord of the Rings|Tolkien, J.R.|Penguin
+Sense and Sensibility|Austen, Jane|Penguin
+The Great Gatsby|Fitzgerald, F. Scott|Penguin
+War and Peace|Tolstoy, Leo|Penguin
+
+-- I find it easier to display the data in columns so we changed the mode:
+sqlite> .mode columns
+
+-- Display all of the books written in the 19th century
+-- in chronological order by year written:
+
+sqlite> SELECT title,author,edition,year_written
+   ...> FROM books
+   ...> WHERE year_written >= 1800
+   ...>   AND year_written < 1900
+   ...> ORDER BY year_written;
+Sense and Sensibility  Austen, Jane  Penguin     1814        
+Tom Sawyer             Twain, Mark   Random Hou  1862        
+War and Peace          Tolstoy, Leo  Penguin     1865        
+Huckleberry Finn       Twain, Mark   Penguin     1865        
+Bleak House            Dickens, Cha  Random Hou  1870        
+Anna Karenina          Tolstoy, Leo  Penguin     1875        
+
+-- Display all of the books written in the 19th century
+-- which were published by Penguin books.
+
+sqlite> SELECT title,author,edition,year_written
+   ...> FROM books
+   ...> WHERE edition = "Penguin"
+   ...>   AND year_written >= 1800
+   ...>   AND year_written < 1900
+   ...> ORDER BY year_written;
+Sense and Sensibility  Austen, Jane  Penguin     1814        
+War and Peace          Tolstoy, Leo  Penguin     1865        
+Huckleberry Finn       Twain, Mark   Penguin     1865        
+Anna Karenina          Tolstoy, Leo  Penguin     1875        
+
+-- Display the author, year, title and edition (publisher)
+-- in order by publisher and then in order by title
+-- within publisher.
+
+sqlite> SELECT title,author,year_written,edition
+   ...> FROM books
+   ...> ORDER BY edition,title;
+Der Steppenwolf  Hesse, Herman  1928          Fischer Verlag
+Harry Potter     Rowling, J.K.  2000          Harcourt Brace
+Mrs. Dalloway    Woolf, Virgin  1925          Harcourt Brace
+The Hours        Cunnningham,   1999          Harcourt Brace
+One Hundred Yea  Marquez        1967          Harper Perenni
+A Room of One's  Woolf, Virgin  1922          Penguin       
+Anna Karenina    Tolstoy, Leo   1875          Penguin       
+Don Quixote      Cervantes      1605          Penguin       
+Huckleberry Fin  Twain, Mark    1865          Penguin       
+Lord of the Rin  Tolkien, J.R.  1937          Penguin       
+Sense and Sensi  Austen, Jane   1814          Penguin       
+The Great Gatsb  Fitzgerald, F  1925          Penguin       
+War and Peace    Tolstoy, Leo   1865          Penguin       
+Bleak House      Dickens, Char  1870          Random House  
+Tom Sawyer       Twain, Mark    1862          Random House  
+Hamlet, Prince   Shakespeare    1603          Signet Classic
+
+-- We decided to display the title, author, edition and year written
+-- for all of the books published by Penguin 
+-- OR
+-- written in the 19th century.
+
+-- We first wrote it without parentheses ... and it worked
+-- but the second example below with parentheses is much more "readable":
+
+sqlite> SELECT title,author,edition,year_written
+   ...> FROM books
+   ...> WHERE edition = "Penguin"
+   ...>   OR  year_written >= 1800
+   ...>  AND  year_written < 1900
+   ...> ORDER BY year_written;
+Don Quixote  Cervantes   Penguin     1605        
+Sense and S  Austen, Ja  Penguin     1814        
+Tom Sawyer   Twain, Mar  Random Hou  1862        
+War and Pea  Tolstoy, L  Penguin     1865        
+Huckleberry  Twain, Mar  Penguin     1865        
+Bleak House  Dickens, C  Random Hou  1870        
+Anna Kareni  Tolstoy, L  Penguin     1875        
+A Room of O  Woolf, Vir  Penguin     1922        
+The Great G  Fitzgerald  Penguin     1925        
+Lord of the  Tolkien, J  Penguin     1937        
+
+sqlite> SELECT title,author,edition,year_written
+   ...> FROM books
+   ...> WHERE edition = "Penguin"
+   ...>    OR (year_written >= 1800
+   ...>   AND  year_written<1900)
+   ...> ORDER BY year_written;
+Don Quixote  Cervantes   Penguin     1605        
+Sense and S  Austen, Ja  Penguin     1814        
+Tom Sawyer   Twain, Mar  Random Hou  1862        
+War and Pea  Tolstoy, L  Penguin     1865        
+Huckleberry  Twain, Mar  Penguin     1865        
+Bleak House  Dickens, C  Random Hou  1870        
+Anna Kareni  Tolstoy, L  Penguin     1875        
+A Room of O  Woolf, Vir  Penguin     1922        
+The Great G  Fitzgerald  Penguin     1925        
+Lord of the  Tolkien, J  Penguin     1937        
+
+-- Here is an example which I have added after the class to demonstrate
+-- where the AND and OR do no give us the anticipated result for the query,
+-- although all of the constraints we decided on are present in the query:
+
+-- Display the title, author, edition and year written
+-- for all of the books published by Penguin 
+-- OR
+-- written in the 19th century.
+-- THIS EXAMPLE DOES NOT WORK --
+------------------------------------------------
+sqlite> SELECT title,author,edition,year_written
+   ...> FROM books
+   ...> WHERE year_written >=1800
+   ...>    OR edition = "Penguin"
+   ...>   AND year_written <1900
+   ...> ORDER BY year_written;
+Don Quixote                               Cervantes   Penguin     1605        
+Sense and Sensibility                     Austen, Ja  Penguin     1814        
+Tom Sawyer                                Twain, Mar  Random Hou  1862        
+War and Peace                             Tolstoy, L  Penguin     1865        
+Huckleberry Finn                          Twain, Mar  Penguin     1865        
+Bleak House                               Dickens, C  Random Hou  1870        
+Anna Karenina                             Tolstoy, L  Penguin     1875        
+A Room of One's Own                       Woolf, Vir  Penguin     1922        
+Mrs. Dalloway                             Woolf, Vir  Harcourt B  1925        
+The Great Gatsby                          Fitzgerald  Penguin     1925        
+Der Steppenwolf                           Hesse, Her  Fischer Ve  1928        
+Lord of the Rings                         Tolkien, J  Penguin     1937        
+One Hundred Years of Solitude             Marquez     Harper Per  1967        
+The Hours                                 Cunnningha  Harcourt B  1999        
+Harry Potter                              Rowling, J  Harcourt B  2000   
+
+-- Next we listed the title, author, price and publisher
+-- in order by price.
+
+sqlite> SELECT title,author,price,edition
+   ...> FROM books
+   ...> ORDER BY price ASC;
+Bleak House  Dickens, Charles  5.75        Random House
+Huckleberry  Twain, Mark       5.76        Penguin     
+Hamlet, Pri  Shakespeare       7.95        Signet Class
+The Great G  Fitzgerald, F. S  12.0        Penguin     
+The Hours    Cunnningham, Mic  12.34       Harcourt Bra
+War and Pea  Tolstoy, Leo      12.7        Penguin     
+Anna Kareni  Tolstoy, Leo      13.5        Penguin     
+One Hundred  Marquez           14.0        Harper Peren
+Sense and S  Austen, Jane      18.2        Penguin     
+Harry Potte  Rowling, J.K.     19.95       Harcourt Bra
+Mrs. Dallow  Woolf, Virginia   25.0        Harcourt Bra
+Tom Sawyer   Twain, Mark       25.0        Random House
+Don Quixote  Cervantes         25.0        Penguin     
+Lord of the  Tolkien, J.R.     27.45       Penguin     
+A Room of O  Woolf, Virginia   29.0        Penguin     
+Der Steppen  Hesse, Herman     95.0        Fischer Verl
+
+-- But what is the price with tax?
+-- Here we list the the price and the price with tax as 
+-- a computed column and we introduced the keyword AS.
+
+sqlite> SELECT title,author,price,(price*1.0875) AS priceWithTax
+   ...> FROM books
+   ...> ORDER BY price;
+Bleak House  Dickens, Charles  5.75        6.253125    
+Huckleberry  Twain, Mark       5.76        6.264       
+Hamlet, Pri  Shakespeare       7.95        8.645625    
+The Great G  Fitzgerald, F. S  12.0        13.05       
+The Hours    Cunnningham, Mic  12.34       13.41975    
+War and Pea  Tolstoy, Leo      12.7        13.81125    
+Anna Kareni  Tolstoy, Leo      13.5        14.68125    
+One Hundred  Marquez           14.0        15.225      
+Sense and S  Austen, Jane      18.2        19.7925     
+Harry Potte  Rowling, J.K.     19.95       21.695625   
+Mrs. Dallow  Woolf, Virginia   25.0        27.1875     
+Tom Sawyer   Twain, Mark       25.0        27.1875     
+Don Quixote  Cervantes         25.0        27.1875     
+Lord of the  Tolkien, J.R.     27.45       29.851875   
+A Room of O  Woolf, Virginia   29.0        31.5375     
+Der Steppen  Hesse, Herman     95.0        103.3125    
+
+-- A question came up after class about how to display the above
+-- in dollars and cents. Here is an example using ROUND(x,y).
+-- You can find SQLite functions posted at 
+-- https://www.sqlite.org/lang_corefunc.html#round
+
+sqlite> SELECT title,author,ROUND(price,2),ROUND(price*1.0875,2) AS priceWithTax
+   ...> FROM books
+   ...> ORDER BY priceWithTax DESC;
+Der Steppenwolf                           Hesse, Her  95.0            103.31      
+A Room of One's Own                       Woolf, Vir  29.0            31.54       
+Lord of the Rings                         Tolkien, J  27.45           29.85       
+Mrs. Dalloway                             Woolf, Vir  25.0            27.19       
+Tom Sawyer                                Twain, Mar  25.0            27.19       
+Don Quixote                               Cervantes   25.0            27.19       
+Harry Potter                              Rowling, J  19.95           21.7        
+Sense and Sensibility                     Austen, Ja  18.2            19.79       
+One Hundred Years of Solitude             Marquez     14.0            15.23       
+Anna Karenina                             Tolstoy, L  13.5            14.68       
+War and Peace                             Tolstoy, L  12.7            13.81       
+The Hours                                 Cunnningha  12.34           13.42       
+The Great Gatsby                          Fitzgerald  12.0            13.05       
+Hamlet, Prince of Denmark                 Shakespear  7.95            8.65        
+Huckleberry Finn                          Twain, Mar  5.76            6.26        
+Bleak House                               Dickens, C  5.75            6.25   
+
+-- Next we discussed the concatenation operator in SQLite.
+-- This part of the statement:
+--             title||" ("||author||", "||year_written||")" 
+-- would be written in Python using a + symbol as follows:
+--             title +" (" +author +", " +year_written+")"
+-- Notice how the ourput here is formatted.
+
+sqlite> SELECT title||" ("||author||", "||year_written||")" AS book_name
+   ...> FROM books
+   ...> ORDER BY title;
+A Room of One's Own (Woolf, Virginia, 1922)
+Anna Karenina (Tolstoy, Leo, 1875)         
+Bleak House (Dickens, Charles, 1870)       
+Der Steppenwolf (Hesse, Herman, 1928)      
+Don Quixote (Cervantes, 1605)              
+Hamlet, Prince of Denmark (Shakespeare, 160
+Harry Potter (Rowling, J.K., 2000)         
+Huckleberry Finn (Twain, Mark, 1865)       
+Lord of the Rings (Tolkien, J.R., 1937)    
+Mrs. Dalloway (Woolf, Virginia, 1925)      
+One Hundred Years of Solitude (Marquez, 196
+Sense and Sensibility (Austen, Jane, 1814) 
+The Great Gatsby (Fitzgerald, F. Scott, 192
+The Hours (Cunnningham, Michael, 1999)     
+Tom Sawyer (Twain, Mark, 1862)             
+War and Peace (Tolstoy, Leo, 1865)         
+
+-- What if we raised the price of all of our books by 10%?
+-- This would require an UPDATE query.
+-- Now the prices for our books are changed in the table itself.
+
+sqlite> UPDATE books
+   ...> SET price = price*1.10;
+
+-- And let's look at the results:
+sqlite> SELECT title,author,price
+   ...> FROM books
+   ...> ORDER BY price;
+Bleak House  Dickens, Charles  6.325     
+Huckleberry  Twain, Mark       6.336     
+Hamlet, Pri  Shakespeare       8.745     
+The Great G  Fitzgerald, F. S  13.2      
+The Hours    Cunnningham, Mic  13.574    
+War and Pea  Tolstoy, Leo      13.97     
+Anna Kareni  Tolstoy, Leo      14.85     
+One Hundred  Marquez           15.4      
+Sense and S  Austen, Jane      20.02     
+Harry Potte  Rowling, J.K.     21.945    
+Mrs. Dallow  Woolf, Virginia   27.5      
+Tom Sawyer   Twain, Mark       27.5      
+Don Quixote  Cervantes         27.5      
+Lord of the  Tolkien, J.R.     30.195    
+A Room of O  Woolf, Virginia   31.9      
+Der Steppen  Hesse, Herman     104.5     
+
+-- We have further decided to raise the prices of all 
+-- books published by Penguin by 40%.
+-- Note the use of WHERE in this UPDATE query.
+
+sqlite> UPDATE books
+   ...> SET price=price*1.4
+   ...> WHERE edition = "Penguin";
+
+-- And let's look at the results:
+sqlite> SELECT title,author,edition,price
+   ...> FROM books
+   ...> ORDER BY price;
+Bleak House  Dickens, Charles  Random House  6.325     
+Hamlet, Pri  Shakespeare       Signet Class  8.745     
+Huckleberry  Twain, Mark       Penguin       8.8704    
+The Hours    Cunnningham, Mic  Harcourt Bra  13.574    
+One Hundred  Marquez           Harper Peren  15.4      
+The Great G  Fitzgerald, F. S  Penguin       18.48     
+War and Pea  Tolstoy, Leo      Penguin       19.558    
+Anna Kareni  Tolstoy, Leo      Penguin       20.79     
+Harry Potte  Rowling, J.K.     Harcourt Bra  21.945    
+Mrs. Dallow  Woolf, Virginia   Harcourt Bra  27.5      
+Tom Sawyer   Twain, Mark       Random House  27.5      
+Sense and S  Austen, Jane      Penguin       28.028    
+Don Quixote  Cervantes         Penguin       38.5      
+Lord of the  Tolkien, J.R.     Penguin       42.273    
+A Room of O  Woolf, Virginia   Penguin       44.66     
+Der Steppen  Hesse, Herman     Fischer Verl  104.5     
+
+-- Well, those prices are too high.
+-- So we deleted all of the books published by Penguin.
+
+sqlite> DELETE 
+   ...> FROM books
+   ...> WHERE edition = "Penguin";
+
+-- And we checked to be sure they are no longer in the table.
+sqlite> SELECT title,author,edition,price
+   ...> FROM books
+   ...> ORDER BY price;
+Bleak House  Dickens, Charles  Random House  6.325     
+Hamlet, Pri  Shakespeare       Signet Class  8.745     
+The Hours    Cunnningham, Mic  Harcourt Bra  13.574    
+One Hundred  Marquez           Harper Peren  15.4      
+Harry Potte  Rowling, J.K.     Harcourt Bra  21.945    
+Mrs. Dallow  Woolf, Virginia   Harcourt Bra  27.5      
+Tom Sawyer   Twain, Mark       Random House  27.5      
+Der Steppen  Hesse, Herman     Fischer Verl  104.5     
+
+-- VERY IMPORTANT --
+-- Note that the query DELETE FROM ... without a WHERE clause
+-- ... will remove all records.
+
+-- We discussed in class: the difference between:
+--    DROP TABLE x - the entire table is removed
+--    DELETE FROM x - the table remains but is now empty
+
+sqlite> DELETE
+   ...> FROM books;
+
+-- there are no records left: 
+sqlite> SELECT * FROM books;
+
+-- but the table is here.
+sqlite> .tables
+books
+
+-- A query using COUNT() shows zero records.
+sqlite> SELECT COUNT(*) FROM books;
+0         
+
+-- But ... no harm done!
+-- We can simply re-execute the script using .read
+-- and we are all set:
+
+sqlite> .read books_script_sqlite.sql
+sqlite> SELECT COUNT(*)
+   ...> FROM books;
+16        
+sqlite> SELECT * FROM books;
+Sense and Sensibility  Austen, Jane  1814          Penguin     18.2        2011-12-01  
+War and Peace          Tolstoy, Leo  1865          Penguin     12.7        2009-03-31  
+Anna Karenina          Tolstoy, Leo  1875          Penguin     13.5        2010-02-25  
+Mrs. Dalloway          Woolf, Virgi  1925          Harcourt B  25.0        2014-01-10  
+The Hours              Cunnningham,  1999          Harcourt B  12.34       2012-11-08  
+Huckleberry Finn       Twain, Mark   1865          Penguin     5.76        2012-02-29  
+Bleak House            Dickens, Cha  1870          Random Hou  5.75        2009-10-31  
+Tom Sawyer             Twain, Mark   1862          Random Hou  25.0        2009-09-20  
+A Room of One's Own    Woolf, Virgi  1922          Penguin     29.0        2013-11-30  
+Harry Potter           Rowling, J.K  2000          Harcourt B  19.95       2014-01-01  
+One Hundred Years of   Marquez       1967          Harper Per  14.0        2013-03-01  
+Hamlet, Prince of Den  Shakespeare   1603          Signet Cla  7.95        2013-09-24  
+Lord of the Rings      Tolkien, J.R  1937          Penguin     27.45       2013-09-25  
+Der Steppenwolf        Hesse, Herma  1928          Fischer Ve  95.0        2015-02-03  
+The Great Gatsby       Fitzgerald,   1925          Penguin     12.0        2015-02-11  
+Don Quixote            Cervantes     1605          Penguin     25.0        2015-07-21  
+
+-- Next we discussed aggregate queries:
+
+-- How many records are in the books table?
+sqlite> SELECT COUNT(*) 
+   ...> FROM books;
+16        
+
+-- For the COUNT() function, we can use a field or *.
+sqlite> SELECT COUNT(title)
+   ...> FROM books;
+16          
+
+-- What is the total value of the collection?
+sqlite> SELECT SUM(price)
+   ...> FROM books;
+348.6     
+
+-- How many books in our collection were published by Penguin?
+sqlite> SELECT COUNT(title)
+   ...> FROM books
+   ...> WHERE edition="Penguin";
+8     
+
+-- What is the value of the books in our collection
+-- published by Penguin?
+sqlite> SELECT SUM(price)
+   ...> FROM books
+   ...> WHERE edition="Penguin";
+143.61    
+
+-- What is the average price for a book in our collection?
+-- Here we used the AVG() function ...
+sqlite> SELECT AVG(price)
+   ...> FROM books;
+21.7875   
+
+-- And the question came up in class if we could use division with SUM() and COUNT()
+-- instead, which also works fine:
+
+sqlite> SELECT SUM(price) / COUNT(title)
+   ...> FROM books;
+21.7875                  
+
+-- What if we would like to find out how many books were published
+-- for each publishing house?
+-- We introduced the GROUP BY clause.
+
+sqlite> SELECT edition,COUNT(title)
+   ...> FROM books
+   ...> GROUP BY edition
+   ...> ORDER BY edition;
+Fischer Verlag  1           
+Harcourt Brace  3           
+Harper Perenni  1           
+Penguin         8           
+Random House    2           
+Signet Classic  1           
+
+
+-- Here we used the alias "number" and then 
+-- displayed the results in descending order
+-- by the number of books per publisher.
+
+-- For display purposes, we changed the column width:
+sqlite> .width 40 10
+sqlite> SELECT edition,COUNT(title) AS number
+   ...> FROM books
+   ...> GROUP BY edition
+   ...> ORDER BY number DESC;
+Penguin                                   8         
+Harcourt Brace                            3         
+Random House                              2         
+Fischer Verlag                            1         
+Harper Perennial                          1         
+Signet Classics                           1         
+
+-- How many books do we have for each author in our collection?
+sqlite> SELECT author,COUNT(title)
+   ...> FROM books
+   ...> GROUP BY author
+   ...> ORDER BY author;
+Austen, Jane                              1         
+Cervantes                                 1         
+Cunnningham, Michael                      1         
+Dickens, Charles                          1         
+Fitzgerald, F. Scott                      1         
+Hesse, Herman                             1         
+Marquez                                   1         
+Rowling, J.K.                             1         
+Shakespeare                               1         
+Tolkien, J.R.                             1         
+Tolstoy, Leo                              2         
+Twain, Mark                               2         
+Woolf, Virginia                           2         
+
+-- What is the value of the books for each publisher
+-- in our collection?
+
+sqlite> SELECT edition,SUM(price) AS value
+   ...> FROM books
+   ...> GROUP BY edition
+   ...> ORDER BY value DESC;
+Penguin                                   143.61    
+Fischer Verlag                            95.0      
+Harcourt Brace                            57.29     
+Random House                              30.75     
+Harper Perennial                          14.0      
+Signet Classics                           7.95      
+
+-- A question came up in class ... whether we need to use an ALIAS
+-- using the AS keyword for the ORDER BY clause.
+-- Here is an example without an alias:
+
+sqlite> SELECT edition,SUM(price) 
+   ...> FROM books
+   ...> GROUP BY edition
+   ...> ORDER BY SUM(price);
+Signet Classics                           7.95      
+Harper Perennial                          14.0      
+Random House                              30.75     
+Harcourt Brace                            57.29     
+Fischer Verlag                            95.0      
+Penguin                                   143.61    
+
+-- A question came up whether we could use COUNT()
+-- with a numeric column, in this case price:
+
+sqlite> SELECT edition,COUNT(price)
+   ...> FROM books
+   ...> GROUP BY edition
+   ...> ORDER BY COUNT(price);
+Fischer Verlag                            1         
+Harper Perennial                          1         
+Signet Classics                           1         
+Random House                              2         
+Harcourt Brace                            3         
+Penguin                                   8         
+
+-- We now turned to the keyword DISTINCT.
+-- If we list the authors in our collection,
+-- we see duplicate names because some authors
+-- have more than one book in our collection.
+
+sqlite> SELECT author
+   ...> FROM books
+   ...> ORDER BY author;
+Austen, Jane                            
+Cervantes                               
+Cunnningham, Michael                    
+Dickens, Charles                        
+Fitzgerald, F. Scott                    
+Hesse, Herman                           
+Marquez                                 
+Rowling, J.K.                           
+Shakespeare                             
+Tolkien, J.R.                           
+Tolstoy, Leo                            
+Tolstoy, Leo                            
+Twain, Mark                             
+Twain, Mark                             
+Woolf, Virginia                         
+Woolf, Virginia                         
+
+-- However the keyword distinct will yield only one
+-- instance per author in the resulting display:
+sqlite> SELECT DISTINCT author
+   ...> FROM books
+   ...> ORDER BY author;
+Austen, Jane                            
+Cervantes                               
+Cunnningham, Michael                    
+Dickens, Charles                        
+Fitzgerald, F. Scott                    
+Hesse, Herman                           
+Marquez                                 
+Rowling, J.K.                           
+Shakespeare                             
+Tolkien, J.R.                           
+Tolstoy, Leo                            
+Twain, Mark                             
+Woolf, Virginia                         
+
+-- We also discussed the function LIKE.
+-- LIKE allows us to do string searches.
+-- The % symbol is a 'wild card'.
+
+-- Here there are no books with an author that has 'Woolf' at the end of the author's name field:
+sqlite> SELECT title,author
+   ...> FROM books
+   ...> WHERE author LIKE '%Woolf'
+   ...> ORDER BY title;
+
+-- but there are two books with an author with 'Woolf' somewhere in the author's name field:
+sqlite> SELECT title,author
+   ...> FROM books
+   ...> WHERE author LIKE '%Woolf%'
+   ...> ORDER BY title;
+A Room of One's Own                       Woolf, Vir
+Mrs. Dalloway                             Woolf, Vir
+
+-- In order to use the keyword IN,
+-- place several values inside of parentheses separated by commas
+-- (similar to a Python tuple)
+-- and use the IN keyword to see if the value you are checking
+-- is one of the values you are seeking:
+
+sqlite> SELECT title,author,edition,price
+   ...> FROM books
+   ...> WHERE edition IN ("Penguin","B&N","Oxford Press")
+   ...> ORDER BY title;
+A Room of One's Own                       Woolf, Vir  Penguin     29.0      
+Anna Karenina                             Tolstoy, L  Penguin     13.5      
+Don Quixote                               Cervantes   Penguin     25.0      
+Huckleberry Finn                          Twain, Mar  Penguin     5.76      
+Lord of the Rings                         Tolkien, J  Penguin     27.45     
+Sense and Sensibility                     Austen, Ja  Penguin     18.2      
+The Great Gatsby                          Fitzgerald  Penguin     12.0      
+War and Peace                             Tolstoy, L  Penguin     12.7      
+
+-- A question came up in class about whether one could use
+-- the aggregate functions - COUNT(), SUM(), MIN(), MAX(), AVG()
+-- without the GROUP BY clause.
+
+-- In the case of working with the entire file, the answer is "yes":
+-- This query answers the question,
+-- What is the total value of the collection?
+sqlite> SELECT SUM(price)
+   ...> FROM books;
+348.6                                   
+
+-- This next query correctly answers the question,
+-- what is the total value of the books in the collection
+-- for each publisher?
+
+sqlite> SELECT edition,SUM(price)
+   ...> FROM books
+   ...> GROUP BY edition
+   ...> ORDER BY edition;
+Fischer Verlag                            95.0      
+Harcourt Brace                            57.29     
+Harper Perennial                          14.0      
+Penguin                                   143.61    
+Random House                              30.75     
+Signet Classics                           7.95      
+
+-- However, the next example is incorrect.
+-- Other SQL 'dialects' would issue an error.
+-- In this case, the result does not "make sense".
+-- SQLite should issue an error!
+-- Instead ... it gives the total value of the collection
+-- with the edition "Penguin" which is not correct.
+
+-- BE VERY CAREFUL TO ALWAYS USE AGGREGATE FUNCTIONS WITH GROUP BY 
+-- UNLESS YOU ARE WORKING WITH THE ENTIRE FILE.
+
+-- THIS EXAMPLE DOES NOT WORK --
+------------------------------------------------
+sqlite> SELECT edition,SUM(price)
+   ...> FROM books
+   ...> ORDER BY edition;
+Penguin                                   348.6     
+
+-- We further explained this in class using a WHERE clause.
+-- So if you wish to look at sub-totals or GROUP BY 
+-- for a specific part of the table, use WHERE
+-- to select only the records or rows that meet your criteria
+-- and then do the GROUP BY.
+
+-- In this case, we have asked for sub-totals of the value of the
+-- books by publisher ...
+-- But only for books that were written after 1850.
+
+sqlite> SELECT edition,SUM(price)
+   ...> FROM books
+   ...> WHERE year_written > 1850
+   ...> GROUP BY edition
+   ...> ORDER BY edition;
+Fischer Verlag                            95.0      
+Harcourt Brace                            57.29     
+Harper Perennial                          14.0      
+Penguin                                   100.41    
+Random House                              30.75     
+sqlite> 

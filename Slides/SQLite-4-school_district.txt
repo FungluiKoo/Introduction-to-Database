@@ -1,0 +1,463 @@
+-- CSCI-UA.60-1 Class Notes
+-- SQLite 
+-- September 26, 2019
+
+-- We opened SQLite3 and created the 'schoolDistricts.db' file.
+(base) 10-16-158-161:SQLite deena$ sqlite3 schoolDistricts.db
+SQLite version 3.29.0 2019-07-10 17:32:03
+Enter ".help" for usage hints.
+
+-- There are no tables yet in this database.
+sqlite> .tables
+
+-- So we executed the SQL script that is on the class notes page.
+sqlite> .read sd_script_sqlite.sql
+
+-- Now the 'sd' table is available and populated.
+
+sqlite> .tables
+sd
+sqlite> .schema sd
+CREATE TABLE sd (
+  sd_state text,
+  sd_geoid text,
+  sd_name text,
+  sd_lowestGrade text,
+  sd_highestGrade text,
+  sd_pop_2010 integer,
+  sd_hu_2010 integer,
+  sd_aland real,
+  sd_awater real,
+  sd_aland_sqmi real,
+  sd_awater_sqmi real,
+  sd_intptlat real,
+  sd_intptlong real,
+  PRIMARY KEY(sd_geoid)
+  );
+
+-- ... with 10,892 records.
+
+sqlite> SELECT COUNT(*)
+   ...> FROM sd;
+10892
+
+-- We also looked at the first 10 records to check the status of the data.
+sqlite> SELECT sd_state,sd_name
+   ...> FROM sd
+   ...> LIMIT 10;
+AL	Fort Rucker School District
+AL	Maxwell AFB School District
+AL	Albertville City School District
+AL	Marshall County School District
+AL	Hoover City School District
+AL	Madison City School District
+AL	Leeds City School District
+AL	Boaz City School District
+AL	Trussville City School District
+AL	Alexander City City School District
+
+-- Which are the five states with the highest populations in the U.S.?
+sqlite> SELECT sd_state,SUM(sd_pop_2010) AS pop
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> ORDER BY pop DESC
+   ...> LIMIT 5;
+CA	26743991
+TX	25137151
+NY	19125721
+FL	18801310
+PA	12702379
+
+-- Which are the five states with the lowest populations in the U.S.?
+sqlite> SELECT sd_state,SUM(sd_pop_2010) AS pop
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> ORDER BY pop ASC
+   ...> LIMIT 5;
+MT	109712
+VT	217573
+WY	563626
+DC	601723
+ND	656098
+
+-- How many school districts are listed with a population of zero?
+sqlite> SELECT COUNT(*)
+   ...> FROM sd
+   ...> WHERE sd_pop_2010 =0;
+22
+
+-- Since there are only 22 of them, we decided to list them out.
+-- Notice that some of them are "Not Defined".
+
+sqlite> SELECT sd_state,sd_name,sd_pop_2010
+   ...> FROM sd
+   ...> WHERE sd_pop_2010 =0;
+CA	School District Not Defined (Water)	0
+CT	School District Not Defined (Water)	0
+IL	School District Not Defined (Water)	0
+IN	School District Not Defined (Water)	0
+ME	Sagadahoc Unorganized Territory	0
+ME	Louds Island Unorganized Territory	0
+ME	School District Not Defined (Water)	0
+MA	School District Not Defined (Water)	0
+MN	School District Not Defined (Water)	0
+NE	School District Not Defined	0
+NH	School District Not Defined (Water)	0
+NJ	School District Not Defined (Water)	0
+NY	School District Not Defined (Water)	0
+OH	North Bass Local School District	0
+OR	School District Not Defined	0
+PA	School District Not Defined (Water)	0
+RI	School District Not Defined (Water)	0
+VT	Avery's Gore School District	0
+VT	Lewis School District	0
+VT	Warner's Grant School District	0
+WI	School District Not Defined	0
+WI	School District Not Defined (Water)	0
+
+-- Upon further inquiry, we see that 29 of them
+-- are "Not Defined" and some have a population over zero:
+sqlite> SELECT COUNT(*)
+   ...> FROM sd
+   ...> WHERE sd_name LIKE '%Not Defined%';
+29
+
+sqlite> SELECT sd_state,sd_name,sd_pop_2010
+   ...> FROM sd
+   ...> WHERE sd_name LIKE '%Not Defined%'
+   ...> ORDER BY sd_state,sd_name;
+AZ	School District Not Defined	69809
+CA	School District Not Defined	710
+CA	School District Not Defined (Water)	0
+CT	School District Not Defined (Water)	0
+IA	School District Not Defined	2
+IL	School District Not Defined (Water)	0
+IN	School District Not Defined	560
+IN	School District Not Defined (Water)	0
+KY	School District Not Defined	18
+MA	School District Not Defined (Water)	0
+ME	School District Not Defined (Water)	0
+MI	School District Not Defined (Water)	243
+MN	School District Not Defined	144
+MN	School District Not Defined (Water)	0
+NE	School District Not Defined	0
+NH	School District Not Defined	4
+NH	School District Not Defined (Water)	0
+NJ	School District Not Defined (Water)	0
+NY	School District Not Defined	13644
+NY	School District Not Defined (Water)	0
+OH	School District Not Defined	59
+OH	School District Not Defined (Water)	4
+OR	School District Not Defined	0
+PA	School District Not Defined (Water)	0
+RI	School District Not Defined (Water)	0
+SC	School District Not Defined	8
+WI	School District Not Defined	0
+WI	School District Not Defined (Water)	0
+WY	School District Not Defined	288
+
+-- After class discussion, we decided to delete those records.
+-- We know from the above that we started with 10,892 records
+-- and that we would remove 22 so there should be 10,870
+-- records left.
+
+-- It is always a good practice to figure out what the result
+-- should be before a DELETE or UPDATE query so that you know
+-- if it worked as anticipated.
+
+sqlite> SELECT (10892-22);
+10870
+sqlite> DELETE 
+   ...> FROM sd
+   ...> WHERE sd_pop_2010 = 0;
+sqlite> SELECT COUNT(*) FROM sd;
+10870
+
+-- Next we posed the question: what are the lowest grades
+-- offered (e.g. for young children)?
+
+-- Here are some sample records; but with about 11,000
+-- records, we cannot determine all of the possibilities by eye.
+
+sqlite> SELECT sd_state,sd_name,sd_lowestGrade
+   ...> FROM sd
+   ...> ORDER BY sd_name
+   ...> LIMIT 15;
+IL	A-C Central Community Unit School District 262	PK
+IA	A-H-S-T Community School District	PK
+CA	ABC Unified School District	KG
+MN	ACGC School District	PK
+IA	AGWSR Community School District	PK
+SC	Abbeville County School District	PK
+WI	Abbotsford School District	PK
+TX	Abbott Independent School District	PK
+MS	Aberdeen School District	PK
+WA	Aberdeen School District	PK
+SD	Aberdeen School District 06-1	PK
+ID	Aberdeen School District 58	PK
+TX	Abernathy Independent School District	PK
+TX	Abilene Independent School District	PK
+KS	Abilene Unified School District 435	PK
+
+-- One student in the class suggested GROUP BY 
+-- which does indeed reveal the specific values possible
+-- for the field sd_lowestGrade along with a helpful count:
+
+sqlite> SELECT sd_lowestGrade,COUNT(*)
+   ...> FROM sd
+   ...> GROUP BY sd_lowestGrade
+   ...> ORDER BY sd_lowestGrade;
+01	1
+KG	3381
+PK	7488
+
+-- Where is the school district that does not offer kindergarten or pre-kindergarten?
+
+sqlite> SELECT sd_state,sd_name
+   ...> FROM sd
+   ...> WHERE sd_lowestGrade='01';
+WA	Shaw Island School District
+
+-- Another way to cull the specific options or codes available
+-- for this field is to use the keyword DISTINCT.
+
+sqlite> SELECT DISTINCT sd_lowestGrade
+   ...> FROM sd
+   ...> ORDER BY sd_lowestGrade;
+01
+KG
+PK
+
+-- Next we asked the question, "Do all school districts in the U.S.
+-- offer education through 12th grade (senior year in high school)?
+
+-- Apparently the answer is YES.
+sqlite> SELECT DISTINCT sd_highestGrade
+   ...> FROM sd
+   ...> ORDER BY sd_highestGrade;
+12
+
+-- Next we discussed housing density.
+-- This result is not useful, both because it produces an integer result
+-- and because that does not fulfill the definition of housing density.
+
+sqlite> SELECT sd_state,sd_name,sd_hu_2010/sd_pop_2010 as hdensity
+   ...> FROM sd
+   ...> ORDER BY hdensity 
+   ...> DESC
+   ...> LIMIT 15;
+ME	Knox Unorganized Territory	29
+ME	Glenwood Plantation	15
+OH	Middle Bass Local School District	15
+VT	Warren'S Gore School Disrrict	12
+NY	Fire Island Union Free School District	10
+VT	Averill School District	8
+VT	Somerset School District	7
+ME	The Forks Plantation	6
+ME	Beddington	6
+NY	Raquette Lake Union Free School District	6
+VT	Stratton School District	6
+ME	Lake View Plantation	5
+ME	Kingsbury Plantation	5
+NH	School District Not Defined	5
+ME	Lakeville	4
+
+-- columns are easier to see ...
+sqlite> .mode columns
+
+-- We corrected the datatype issue by multiplying one of the integer
+-- values by 1.0 to force a floating point number result.
+sqlite> SELECT sd_state,sd_name,(sd_hu_2010*1.0)/sd_pop_2010 as hdensity
+   ...> FROM sd
+   ...> ORDER BY hdensity DESC
+   ...> LIMIT 15;
+ME          Knox Unorganized Territory  29.0      
+OH          Middle Bass Local School D  15.96     
+ME          Glenwood Plantation         15.6666666
+VT          Warren'S Gore School Disrr  12.75     
+NY          Fire Island Union Free Sch  10.9338235
+VT          Averill School District     8.70833333
+VT          Somerset School District    7.0       
+VT          Stratton School District    6.69907407
+ME          Beddington                  6.42      
+ME          The Forks Plantation        6.21621621
+NY          Raquette Lake Union Free S  6.21052631
+NH          School District Not Define  5.5       
+ME          Lake View Plantation        5.11235955
+ME          Kingsbury Plantation        5.03571428
+ME          Lakeville                   4.31428571
+
+-- But the answer we really want is the population divided by housing units.
+-- What do you notice about the result?
+
+-- We discussed in class that there is a cultural bias in the result - meaning
+-- that domain-specific knowledge of  U.S. geography is needed to see that outside of 
+-- the first record (which would require further research "on the ground"),
+-- that military bases comprise much of this result set. We discussed
+-- how and why that might be the case.
+
+sqlite> SELECT sd_state,sd_name,(sd_pop_2010*1.0)/sd_hu_2010 as hdensity
+   ...> FROM sd
+   ...> ORDER BY hdensity DESC
+   ...> LIMIT 20;
+IN          School District Not Defined  25.4545454545455
+TX          Lackland Independent School  17.5885885885886
+WI          Norris School District       8.5             
+TX          Highland Park Independent S  8.34615384615385
+NC          Camp Lejeune Schools         7.78208556149733
+TX          Fort Sam Houston Independen  7.69870410367171
+TX          Cayuga Independent School D  7.47654504839911
+AZ          Colorado City Unified Distr  7.13969732246799
+CA          Soledad Unified School Dist  6.45            
+AL          Maxwell AFB School District  6.3969465648855 
+TX          Ector Independent School Di  6.28542914171657
+NJ          Rockleigh Borough School Di  6.17441860465116
+CA          Reef-Sunset Unified School   6.00697593303104
+CA          Corcoran Joint Unified Scho  5.96040054619936
+AZ          Fort Huachuca Accommodation  5.89905362776025
+WA          Queets-Clearwater School Di  5.77064220183486
+OK          Geronimo Public Schools      5.43115942028986
+TX          Garner Independent School D  5.22812051649928
+KY          Fort Campbell Dependent Sch  5.08092056421678
+VA          Quantico Marine Corps Cente  4.97103548153512
+
+-- Next we turned to a discussion of WHERE and HAVING clauses.
+
+-- Use WHERE to select individual records in the dataset.
+-- Use HAVING to select "groups" of records that have been
+-- aggregated by a GROUP BY query.
+
+
+-- First we asked which school districts in NY
+-- offer PK?
+
+sqlite> SELECT sd_state,sd_name,sd_lowestGrade,sd_pop_2010
+   ...> FROM sd
+   ...> WHERE sd_state = "NY"
+   ...>   AND sd_lowestGrade = "PK"
+   ...> ORDER BY sd_name;
+NY          Addison Central School District  PK              7115       
+NY          Akron Central School District    PK              9659       
+NY          Albany City School District      PK              97839      
+NY          Albion Central School District   PK              15392      
+NY          Alden Central School District    PK              14052      
+...
+NY          Whitney Point Central School Di  PK              9080       
+NY          Williamson Central School Distr  PK              6847       
+NY          Willsboro Central School Distri  PK              2598       
+NY          Wilson Central School District   PK              8430       
+NY          Wyandanch Union Free School Dis  PK              11702      
+NY          Yonkers City School District     PK              195976     
+NY          Yorkshire-Pioneer Central Schoo  PK              16029      
+
+-- Next we reviewed the results of our earlier query as to which states
+-- have the highest populations:
+-- Which are the five states with the highest populations in the U.S.?
+sqlite> SELECT sd_state,SUM(sd_pop_2010) AS pop
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> ORDER BY pop DESC
+   ...> LIMIT 5;
+CA	26743991
+TX	25137151
+NY	19125721
+FL	18801310
+PA	12702379
+
+-- But this time we asked, which states have a population over 20,000,000?
+-- This approach requires the HAVING clause:
+
+sqlite> SELECT sd_state,SUM(sd_pop_2010)
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> HAVING SUM(sd_pop_2010)>20000000
+   ...> ORDER BY sd_state;
+CA          26743991        
+TX          25137151        
+
+-- This is the same query as above but using an alias, t:
+
+sqlite> SELECT sd_state,SUM(sd_pop_2010) AS t
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> HAVING t>20000000
+   ...> ORDER BY sd_state;
+CA          26743991  
+TX          25137151  
+
+-- Here are the 10 states with the highest number of school districts:
+
+sqlite> SELECT sd_state,COUNT(sd_name)
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> ORDER BY COUNT(sd_name) DESC
+   ...> LIMIT 10;
+TX          1022          
+NY          668           
+OH          615           
+MI          524           
+PA          500           
+MO          448           
+OK          426           
+IL          388           
+WI          369           
+IA          364           
+
+-- In order to find states that have 500 or more school districts,
+-- we need the HAVING clause:
+
+sqlite> SELECT sd_state,COUNT(sd_name) AS c
+   ...> FROM sd
+   ...> GROUP BY sd_state
+   ...> HAVING c>=500
+   ...> ORDER BY sd_state;
+MI          524       
+NY          668       
+OH          615       
+PA          500       
+TX          1022      
+
+-- Next we looked at using WHERE and HAVING in the same query.
+-- Here are the 10 states with the most school districts
+-- that offer PK.
+
+-- Selecting the PK records requires a WHERE clause
+-- as that is a record-by-record selection.
+
+sqlite> SELECT sd_state,COUNT(sd_name) AS c
+   ...> FROM sd
+   ...> WHERE sd_lowestGrade = "PK"
+   ...> GROUP BY sd_state
+   ...> ORDER BY c DESC
+   ...> LIMIT 10;
+TX          930       
+OH          615       
+IA          364       
+WI          362       
+IL          348       
+OK          345       
+MN          338       
+MO          298       
+KS          293       
+NY          281       
+
+-- But now we asked for the states that have 300 or more school districts
+-- that offer PK. 
+-- That requires a WHERE clause to select all of the specifici districts
+-- that offer PK and  
+-- a HAVING clause to select the states with more than 300 of them.
+
+sqlite> SELECT sd_state,COUNT(sd_name) AS c
+   ...> FROM sd
+   ...> WHERE sd_lowestGrade = "PK"
+   ...> GROUP BY sd_state
+   ...> HAVING c>=300
+   ...> ORDER BY sd_state;
+IA          364       
+IL          348       
+MN          338       
+OH          615       
+OK          345       
+TX          930       
+WI          362       
+sqlite> 

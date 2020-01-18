@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<!-- saved from url=(0101)https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_finalClass_and_review_fa19.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CSCI-UA.60-1 Database Design and Implementation, Fall 2019</title>
+    <!-- Bootstrap -->
+    <link href="./Final Review_files/bootstrap.min.css" rel="stylesheet">
+    <link href="./Final Review_files/custom.css" rel="stylesheet">
+    <script src="./Final Review_files/jquery.js.download"></script>
+    <script src="./Final Review_files/bootstrap.min.js.download"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                <a class="navbar-brand" href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/dbw_index_fa19.html">Database Class</a> </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_fa19.html">Class Notes</a></li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_assignments_fa19.html">Assignments</a></li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_resources_fa19.html">Resources</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </nav>
+    <div class="container">
+        <div class="page-header">
+            <h1>CSCI-UA.60-1, Fall 2019</h1>
+            <!-- Enter the page heading here: -->
+            <p class="lead">Database Design and Implementation</p>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Enter page content here -->
+
+                <h4>Final Class Notes &amp; Review</h4>
+                <hr>
+
+                <p class="italicsColor1">Class discussion: Career pssibilities in database work</p>
+                <p><em> Some of the many career paths that are available to database specialists could include ...
+                    </em></p>
+                <ul>
+                    <li>Database Administrator (“DBA”)</li>
+                    <li>Programmer/Analyst or Systems Analyst</li>
+                    <li>Software Developer/Programmer (GUI)</li>
+                    <li>Software Developer/Programmer (DB application routines)</li>
+                    <li>Technical Writer; Software Training; User Support</li>
+                    <li>Web Development</li>
+                    <li>Data analysts and statistical research</li>
+                    <li>Database Manager</li>
+                    <li>Database Architect / Database Designer</li>
+                    <li>Systems Administrators and IT Manager roles</li>
+                    <li>... and others!</li>
+                </ul>
+                <hr>
+
+                <h4>Topics to prepare for the final exam and for technical interviews</h4>
+                <p class="italicsColor1"> Programming; writing queries; presenting results</p>
+
+                <p>Query languages and environments we worked with in this class:</p>
+                <ul>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_sqlite_fa19.html">SQLite</a></li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_MySQL_fa19.html">MySQL</a> along with discussion on PostGreSQL and Oracle</li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_mongo_fa19.html">MongoDB</a></li>
+                </ul>
+
+                <p class="italicsColor1">Relational Database Design</p>
+                <ul>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_dbDesign_fa19.html">Relational database design and E-R diagrams</a></li>
+                </ul>
+
+                <p class="italicsColor1">Using Python to scrub and analyse data: Python modules that we discussed and/or used in classwork:</p>
+                <ul>
+                    <li>Some of the modules we used in class: <a href="https://docs.python.org/3/library/csv.html">csv</a>, <a href="https://docs.python.org/3.0/library/urllib.request.html">urllib.request</a> ... and some of the additional modules we discussed in class: <a href="https://www.crummy.com/software/BeautifulSoup/">beautiful soup</a>, <a href="https://docs.python.org/3/library/json.html">json</a>, <a href="https://docs.python.org/3/library/codecs.html">codecs</a> for text encoding and others.</li>
+                    <li>We introduced <a href="https://pandas.pydata.org/pandas-docs/stable/">pandas</a> for working with data. </li>
+                    <li>We introduced <a href="https://matplotlib.org/">matplotlib</a> to render data visualizations (graphs and charts).</li>
+                    <li>One can also use Python to build applications using <a href="https://docs.python.org/3/library/sqlite3.html">sqlite</a>.</li>
+                </ul>
+
+                <p class="italicsColor1">Using Python to work with data: class notes</p>
+                <ul>
+                    <li>Preparing <a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_pythonDataScrubbing_fa19.html">data</a>.</li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_python_pandas_fa19.html">Introduction to PANDAS</a></li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_pythonDataViz_fa19.html">Rendering charts or graphs for your data.</a></li>
+                    <li>Using Python to build <a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_pythonSQLite_fa19.html">an interface to SQLite </a></li>
+                </ul>
+                <!--
+                <p class="italicsColor1">Using Python to display query results:</p>
+                <ul>
+                    <li>Some of the modules we used in class or discussed include <a href="https://docs.python.org/3/library/cgi.html?highlight=python%20cgi">cgi</a> and <a href="https://docs.python.org/3/library/sqlite3.html?highlight=sqlite3#module-sqlite3">sqlite</a> for our work with SQLite on i6;
+                        <!--<a href="https://pymysql.readthedocs.io/en/latest/">pymysql</a> with MySQL and <a href="https://api.mongodb.com/python/current/">Pymongo</a> with mongoDB. 
+                        In addition we used <a href="https://docs.python.org/2/library/cgitb.html">cgitb</a> for handling exceptions in python/cgi and other modules. </li>
+                </ul>
+                -->
+                <hr>
+
+                <p class="italicsColor1">By popular demand ... data files for an additional SQL exercise. </p>
+                <p><em>Note:</em> This exercise uses only INNER and LEFT joins; but not RIGHT or OUTER joins. Therefore you may use SQLite if you wish or MySQL as you prefer (taking care to distinguish the data types appropriately.)</p>
+
+                <img src="./Final Review_files/artists_sqlite_schema_ER_Diagram.png">
+                <ul>
+                    <li>Museum of Modern Art - <a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/artists.csv">artists</a> (as CSV file)</li>
+                    <li>Museum of Modern Art - <a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/artworks.csv">works of art</a> (as CSV file)</li>
+                    <li>Museum of Modern Art - <a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/artist_nationalities.csv">artist nationalities </a>that are on file</li>
+                    <li>SOURCE: <a href="https://github.com/MuseumofModernArt/collection">https://github.com/MuseumofModernArt/collection</a></li>
+                    <li><em>Modifications</em>: For the purpose of this study, only artists with a known biography are included; only works which have been catalogued are included; and only works with a corresponding artist are included (read: referential integrity is enforced). </li>
+                    <li>Sample Exercise questions
+                        <ol>
+                            <li>How many French artists are represented in MoMA's collection?</li>
+                            <li>How many works of art by French artists are represented in MoMA's collection?</li>
+                            <li>Display the Medium and number of artworks by Iranian artists in alphabetical order by Medium.</li>
+                            <li>Display each Medium that includes 'Pencil' in combination with 'Paper'. (Hint: consider the usage of the keyword DISTINCT.) </li>
+                            <li>List the title of the artwork, the artist's display name and the date acquired for all artworks acquired in 1929.</li>
+                            <li>The how many works of art the museum acquired every year in chronological order by year.</li>
+                            <li>Does this database comply with referential integrity? How do you know? Which query or queries did you run to answer this question?</li>
+                            <li>Come up with questions to ask of your own!</li>
+                        </ol>
+                    </li>
+                </ul>
+                <hr>
+                <p class="italicsColor1">Along with data for a NoSQL / MongoDB exercise:</p>
+                <ul>
+                    <li>
+                        Import the <a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/sd.json">U.S. 2010 school districts file as a JSON file</a> ... source: <a href="https://www.census.gov/geo/maps-data/data/gazetteer2010.html">https://www.census.gov/geo/maps-data/data/gazetteer2010.html</a> and converted to JSON format</li>
+                    <p class="codeStyle">mongoimport --db your_database_name --collection sd --host class-mongodb.cims.nyu.edu --username your_username --password your_password --type json --file sd.json --jsonArray</p>
+
+                    <li>Sample exercise questions:
+                        <ol>
+                            <li>Which five school districts have the highest populations in 2010? Display the district name, state and population only.</li>
+                            <li>Which five school districts in New York State have the highest populations in 2010? Display the district name and population only.</li>
+                            <li>List all of the school districts in Vermont with a size of over 20 square miles.</li>
+                            <li>Are there any school districts that do not offer either kindergarten or pre-kindergarten? (Such a school district would start in 1st grade.)</li>
+                            <li>What are the possible values for the highest grade? (Hint: Use the keyword DISTINCT.)</li>
+                            <li>Come up with questions to ask of your own!</li>
+                        </ol>
+                    </li>
+                </ul>
+
+                <!-- end of page content here -->
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">CSCI-UA.60-1 Database Design and Implementation, Fall 2019</p>
+        </div>
+    </footer>
+
+    <!-- SOLUTIONS TO SQL PROBLEMS IN SQLITE 
+SELECT COUNT(*) FROM artists where Nationality="French";
+SELECT COUNT(*) 
+FROM artworks w 
+INNER JOIN artists a ON  w.ConstituentID = a.ConstituentID
+WHERE a.Nationality = "French";
+
+SELECT COUNT(*) FROM artists WHERE Nationality = "Iranian";
+12/11/2019
+DBW FINAL EXAM PREP USING MOMA DATA
+QUESTIONS:
+
+SELECT Medium,COUNT(*) as works
+FROM artworks w 
+INNER JOIN artists a ON  w.ConstituentID = a.ConstituentID
+WHERE a.Nationality ="Iranian"
+GROUP BY w.Medium
+ORDER BY w.Medium;
+
+SELECT DISTINCT(Medium)
+FROM artworks
+WHERE MEDIUM LIKE '%Pencil%'
+  AND Medium LIKE '%Paper'
+ORDER BY Medium;
+
+SELECT Title,DateAcquired
+FROM artworks
+where DateAcquired > '1500-01-01'
+ORDER BY DateAcquired 
+LIMIT 20;
+
+SELECT w.Title,a.DisplayName,w.DateAcquired
+FROM artworks w 
+INNER JOIN artists a ON  w.ConstituentID = a.ConstituentID
+where w.DateAcquired >= '1929-01-01'
+     AND w.DateAcquired <= '1929-12-31';
+	 
+SELECT SUBSTR(DateAcquired,1,4) AS Year,COUNT(*) as number
+FROM artworks
+GROUP BY Year
+ORDER BY Year;	 
+-->
+
+
+
+
+</body></html>

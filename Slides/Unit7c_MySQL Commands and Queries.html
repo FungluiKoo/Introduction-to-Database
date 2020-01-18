@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<!-- saved from url=(0094)https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_MySQL_commands_fa19.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CSCI-UA.60-1 Database Design and Implementation, Fall 2019</title>
+    <!-- Bootstrap -->
+    <link href="./Unit7c_MySQL Commands and Queries_files/bootstrap.min.css" rel="stylesheet">
+    <link href="./Unit7c_MySQL Commands and Queries_files/custom.css" rel="stylesheet">
+    <script src="./Unit7c_MySQL Commands and Queries_files/jquery.js.download"></script>
+    <script src="./Unit7c_MySQL Commands and Queries_files/bootstrap.min.js.download"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                <a class="navbar-brand" href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/dbw_index_fa19.html">Database Class</a> </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_readings_fa19.html">Class Notes</a></li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_assignments_fa19.html">Assignments</a></li>
+                    <li><a href="https://cs.nyu.edu/courses/fall19/CSCI-UA.0060-001/notes/dbw_resources_fa19.html">Resources</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+            
+        </div>
+    </nav>
+    <div class="container">
+        <div class="page-header">
+            <h1>CSCI-UA.60-1, Fall 2019</h1>
+            <!-- Enter the page heading here: -->
+            <p class="lead">Database Design and Implementation - SQL </p>
+            <hr>
+            <p class="mainContent">Course Materials and Readings:</p>
+            <h3>MySQL</h3>
+            <p>See&nbsp;<a href="http://dev.mysql.com/doc/refman/5.6/en/sql-syntax.html">http://dev.mysql.com/doc/refman/5.6/en/sql-syntax.html</a>&nbsp;for further reference.</p>
+            <table cellpadding="2" cellspacing="2" border="2" width="75%">
+                <tbody>
+                    <tr>
+                        <td width="34%"><em>CREATE TABLE …</em></td>
+                        <td width="66%">creates a new table</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>DROP TABLE …</em></td>
+                        <td width="66%">deletes a table (regardless of whether it contains data)</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>INSERT INTO …</em></td>
+                        <td width="66%">inserts records into a table</td>
+                    </tr>
+                    <tr>
+                        <td><em>LOAD DATA LOCAL INFILE … INTO TABLE …</em></td>
+                        <td>reads data from a textfile into a table</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>SHOW TABLES;</em></td>
+                        <td width="66%">see a list of tables in your current database</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>UPDATE …</em></td>
+                        <td width="66%">modifies one or more records in the table</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>DELETE …</em></td>
+                        <td width="66%">deletes one or more records in the table [Note: This cannot be "undone"!]</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>DESCRIBE …</em></td>
+                        <td width="66%">to see information about the table columns and field properties</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>SHOW COLUMNS from ..</em>.</td>
+                        <td width="66%">to see information about the table columns and field properties. [Note: This is the same as "describe".]</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>ALTER TABLE … ADD COLUMN</em></td>
+                        <td width="66%">to add a column to a table</td>
+                    </tr>
+                    <tr>
+                        <td width="34%"><em>SELECT …</em></td>
+                        <td width="66%">selects records from a table:&nbsp;<em>remember to use the concepts of join, selection criteria, and which columns to project</em></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>&nbsp;</p>
+            <table cellpadding="2" cellspacing="2" border="2" width="75%">
+                <tbody>
+                    <tr>
+                        <td colspan="2"><em>Class Notes: Some of the Keywords to use with our examples of SELECT queries:</em></td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">FROM</td>
+                        <td height="30" width="76%">to select the table to use</td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">WHERE</td>
+                        <td height="30" width="76%">to stipulate criteria for the selection</td>
+                    </tr>
+                    <tr>
+                        <td>DISTINCT</td>
+                        <td>to select unique instances (eliminates duplicates in a list based on the selected column)</td>
+                    </tr>
+                    <tr>
+                        <td width="24%">ORDER BY</td>
+                        <td width="76%">which column(s) to use to sort the results</td>
+                    </tr>
+                    <tr>
+                        <td>GROUP BY</td>
+                        <td>which column(s) to use to group the results for summaries such as sub-totals and other aggregate calculations (similar to using the “database” functions in Excel or “summary” statistics in Access)<em>For example … to find the average price in this book collection by publishing house:</em>SELECT author,AVG(price)<br> FROM books<br> GROUP BY edition<br> ORDER BY edition;</td>
+                    </tr>
+                    <tr>
+                        <td width="24%">LIMIT</td>
+                        <td width="76%">limit how many records to return and which ones; e.g.&nbsp;<em>limit 10</em>&nbsp;returns the first 10 records;<em>limit 10,20</em>&nbsp;returns the records from 10 to 20.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>&nbsp;</p>
+            <table cellpadding="2" cellspacing="2" border="2" width="75%">
+                <tbody>
+                    <tr>
+                        <td colspan="2"><em>Class Notes: Further examples on editing data and tables:</em></td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">UPDATE</td>
+                        <td height="30" width="76%">UPDATE table1<br> SET field1 = &lt;value&gt;<br> WHERE field2 = &lt;value&gt;</td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">SELECT</td>
+                        <td height="30" width="76%">SELECT &lt;field1, field2, etc&gt;<br> FROM &lt;table1, table2, etc&gt;<br> WHERE &lt;criteria&gt;<br> ORDER BY &lt;sort field1, sort field 2, etc&gt;</td>
+                    </tr>
+                    <tr>
+                        <td width="24%">DELETE</td>
+                        <td width="76%">DELETE<br> FROM table1<br> WHERE &lt;condition&gt;</td>
+                    </tr>
+                    <tr>
+                        <td width="24%">ALTER TABLE</td>
+                        <td width="76%">ALTER TABLE table1<br> ADD COLUMN &lt;new field&gt; &lt;field-type&gt;(field length);&nbsp;<em>e.g.</em><br>
+                            <em>ALTER TABLE books<br>
+                                ADD COLUMN price DECIMAL(6,2);</em></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Data Types (<a href="http://dev.mysql.com/doc/refman/5.6/en/data-types.html">http://dev.mysql.com/doc/refman/5.6/en/data-types.html</a>)</p>
+            <table cellpadding="2" cellspacing="2" border="2" width="75%">
+                <tbody>
+                    <tr>
+                        <td colspan="2"><em>Class Notes: Additional information about setting up tables:</em></td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">Data Types</td>
+                        <td height="30" width="76%">INT(m) – an integer of&nbsp;<em>m&nbsp;</em>length<br> DECIMAL(m,n) – a fixed number of&nbsp;<em>m</em>&nbsp;length with&nbsp;<em>n</em>&nbsp;decimal places [Note - we will also discuss DOUBLE(m,n) and FLOAT(m,n)]<br> VARCHAR(m) – a variable-length character field of up to&nbsp;<em>m&nbsp;</em>length<br> CHAR(m) – a fixed-length character field of&nbsp;<em>m&nbsp;</em>length<br> DATE – a date in the format ‘YYYY-MM-DD’<br> DATETIME – a date and time in the format ‘YYYY-MM-DD-HH:MM:SS’<br> TEXT – a text block of up to 65,535 characters</td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">Options to specify for a given column when creating a table</td>
+                        <td height="30" width="76%">NOT NULL – for required fields<br> DEFAULT &lt;default value&gt; – to set a default value<br> AUTO_INCREMENT – for numeric columns, this sets the value of the field 1 greater than the previous record<br> PRIMARY KEY – to set a primary key (also to ensure unique values in this field)<br> FOREIGN KEY – to set up a foreign key (to ensure referential integrity; this is ont necessary as you can join on the foreign key field without this.)<em>For example: to create a primary key using a surrogate key field:</em><br> CREATE TABLE sample (<br> field1 INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, ...<br> )
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="24%">Options for sorts</td>
+                        <td width="76%"><em>Note: Sorts default to ascending</em><br> ASC – to sort in ascending order<br> DESC – to sort in a descending order</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>&nbsp;</p>
+            <table cellpadding="2" cellspacing="2" border="2" width="75%">
+                <tbody>
+                    <tr>
+                        <td colspan="2"><em>Class Notes: Warnings</em></td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">Warnings</td>
+                        <td height="30" width="76%"><em>Warnings</em>&nbsp;can be generated at times when you use the UPDATE, INSERT, DELETE commands or any commands that manipulate tables and data such as LOAD DATA.Use&nbsp;<em>show warnings</em>&nbsp;right after the warnings appear to see them:mysql&gt; UPDATE books<br> SET price = price+(price*.25);
+                            <p> Query OK, 6 rows affected (0.01 sec)<br> Rows matched: 6 Changed: 6 Warnings: 3</p>
+                            <p>mysql&gt; show warnings;<br> +-------+------+--------------------------------------------+
+                                <br> | Level | Code | Message |<br> +-------+------+--------------------------------------------+
+                                <br> | Note | 1265 | Data truncated for column 'price' at row 2 |<br> | Note | 1265 | Data truncated for column 'price' at row 3 |<br> | Note | 1265 | Data truncated for column 'price' at row 5 |<br> +-------+------+--------------------------------------------+
+                                <br> 3 rows in set (0.00 sec)&nbsp;</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>&nbsp;</p>
+            <table width="75%" border="2" cellpadding="2" cellspacing="2">
+                <tbody>
+                    <tr>
+                        <td height="30" colspan="2"><em>Class Notes: Using variables</em></td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">Working with Variables:</td>
+                        <td height="30" width="76%">
+                            <p>SELECT @total := COUNT(ID) FROM schools;<br> SELECT (COUNT(ID)/@total)</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>&nbsp;</p>
+             <h3>MySQLDump</h3>
+            <table width="75%" border="2" cellpadding="2" cellspacing="2">
+                <tbody>
+                    <tr>
+                        <td height="30" colspan="2"><em>Class Notes: Using MYSQLDUMP to export your database into a .SQL script</em></td>
+                    </tr>
+                    <tr>
+                        <td height="30" width="24%">mysqldump</td>
+                        <td height="30" width="76%"><a href="https://dev.mysql.com/doc/refman/5.6/en/mysqldump.html">Documentation on mysqldump</a><br>
+                            FROM THE COMMAND LINE:<br>
+                            <p>mysqldump -hwarehouse -p DATABASE_NAME &gt; NETID_BACKUP.sql </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+        </div>
+    </div>
+
+    <!-- /.container -->
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">CSCI-UA.60-1 Database Design and Implementation, Fall 2019</p>
+        </div>
+    </footer>
+
+
+
+</body></html>
