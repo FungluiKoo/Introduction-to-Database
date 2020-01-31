@@ -1,5 +1,5 @@
 # Intro to Databse
-[![Fenglei](https://img.shields.io/badge/Copyright-Fenglei%20Gu-blue.svg)](https://i6.cims.nyu.edu/~fg1121/index.htm)
+[![Fenglei](https://img.shields.io/badge/Gu-Fenglei-blue.svg)](https://i6.cims.nyu.edu/~fg1121/index.htm)
 [![HitCount](http://hits.dwyl.io/FungluiKoo/Introduction-to-Database.svg)](http://hits.dwyl.io/FungluiKoo/Introduction-to-Database)
 
 **About** 
